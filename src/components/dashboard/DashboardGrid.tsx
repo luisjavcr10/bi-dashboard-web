@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import GridLayout from "react-grid-layout";
+import GridLayout, { Layout } from "react-grid-layout/legacy";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 import { useDashboardStore } from "@/store";
@@ -42,7 +42,7 @@ export default function DashboardGrid({
   [widgets]
  );
 
- const handleLayoutChange = (newLayout: GridLayout.Layout[]) => {
+ const handleLayoutChange = (newLayout: Layout) => {
   if (isEditing) {
    updateLayout(
     newLayout.map((l) => ({ i: l.i, x: l.x, y: l.y, w: l.w, h: l.h }))

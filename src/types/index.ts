@@ -53,3 +53,6 @@ export interface ApiResponse<T = unknown> {
     data?: T;
     timestamp: string;
 }
+
+// Re-export BigQuery types
+export * from "./bigquery";

@@ -4,3 +4,6 @@ export { default as PieChartWidget } from "./PieChartWidget";
 export { default as AreaChartWidget } from "./AreaChartWidget";
 export { default as KPIWidget } from "./KPIWidget";
 export { default as TableWidget } from "./TableWidget";
+export { default as GaugeWidget } from "./GaugeWidget";
+export { default as HorizontalBarChart } from "./HorizontalBarChart";
+export { default as ParetoChart } from "./ParetoChart";
