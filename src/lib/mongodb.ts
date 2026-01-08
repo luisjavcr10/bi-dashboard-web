@@ -10,14 +10,6 @@ declare global {
     var mongooseCache: MongooseCache | undefined;
 }
 
-const MONGODB_URI = process.env.MONGODB_URI!;
-
-if (!MONGODB_URI) {
-    throw new Error(
-        "Please define the MONGODB_URI environment variable inside .env.local"
-    );
-}
-
 const cached: MongooseCache = global.mongooseCache ?? { conn: null, promise: null };
 
 if (!global.mongooseCache) {
@@ -25,6 +17,14 @@ if (!global.mongooseCache) {
 }
 
 async function connectDB(): Promise<typeof mongoose> {
+    const MONGODB_URI = process.env.MONGODB_URI;
+
+    if (!MONGODB_URI) {
+        throw new Error(
+            "Please define the MONGODB_URI environment variable"
+        );
+    }
+
     if (cached.conn) {
         return cached.conn;
     }
@@ -48,3 +48,4 @@ async function connectDB(): Promise<typeof mongoose> {
 }
 
 export default connectDB;
+
