@@ -6,6 +6,7 @@ import { BarChartWidget, KPIWidget, TableWidget } from "@/components/charts";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import { HiCheckBadge, HiExclamationCircle } from "react-icons/hi2";
 import EmptyState from "@/components/ui/EmptyState";
+import { useAgentStore } from "@/store/agentStore";
 
 interface DashboardData {
  kpis: {
@@ -51,6 +52,7 @@ function DashboardContent() {
     if (json.status === "ok") {
      setData(json.data);
      setError(null);
+     useAgentStore.getState().setDashboardContext("Calidad", json.data);
     } else {
      setError(json.message);
     }
