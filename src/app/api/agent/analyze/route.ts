@@ -102,8 +102,13 @@ export async function POST(req: NextRequest) {
 
     } catch (error) {
         console.error("Agent error:", error);
+
+        // Ensure we log the specific error message if it's available
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.error("Detailed Error Message:", errorMessage);
+
         return NextResponse.json(
-            { message: "Error analyzing dashboard", status: "error" },
+            { message: "Error analyzing dashboard", debug: errorMessage, status: "error" },
             { status: 500 }
         );
     }

@@ -18,6 +18,6 @@ export function getModel(): GenerativeModel {
     if (!ai) {
         throw new Error('GEMINI_API_KEY is not configured');
     }
-    return ai.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+    return ai.getGenerativeModel({ model: 'gemini-2.5-flash' });
 }
 
