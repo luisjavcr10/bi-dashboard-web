@@ -195,29 +195,32 @@ export interface EmployeeOEE {
 
 export async function getEmployeeOEE(filters?: Filters): Promise<EmployeeOEE[]> {
   const { whereClause, params } = buildWhereClause(filters);
-
-  // Assumption: Turn duration is not in HechoCalidadEmpaque, assuming standard 8 hours (480 mins) per shift/process.
-  const TIEMPO_IDEAL_EMPAQUE = 1.0;
-  const DURACION_TURNO_MINUTOS = 480;
-
   const query = `
     SELECT 
       e.NombreCompleto,
       SUM(h.ProductosCorrectos) as ProductosCorrectos,
-      COUNT(DISTINCT h.idProcesoEmpaque) * ${DURACION_TURNO_MINUTOS} as DuracionTurno,
+      COUNT(DISTINCT t.Fecha) * 600 as DuracionTurno,
       CASE 
-        WHEN COUNT(DISTINCT h.idProcesoEmpaque) > 0 
-        THEN ROUND(((${TIEMPO_IDEAL_EMPAQUE} * SUM(h.ProductosCorrectos)) / (COUNT(DISTINCT h.idProcesoEmpaque) * ${DURACION_TURNO_MINUTOS})) * 100, 2)
+        WHEN COUNT(DISTINCT t.Fecha) > 0 
+        THEN ROUND(
+            (
+              SUM(h.ProductosCorrectos * (p.tiempoIdealEmpaque / 60.0)) 
+              / 
+              (COUNT(DISTINCT t.Fecha) * 600)
+            ) * 100
+        , 2)
         ELSE 0 
       END as OEE
     FROM ${table("HechoCalidadEmpaque")} h
     JOIN ${table("DimEmpleado")} e ON h.EmpleadoKey = e.EmpleadoKey
     JOIN ${table("DimTiempo")} t ON h.TiempoKey = t.TiempoKey
     JOIN ${table("DimOrganizacion")} o ON h.OrganizacionKey = o.OrganizacionKey
+    JOIN ${table("DimProducto")} p ON h.ProductoKey = p.ProductoKey
     JOIN ${table("DimTurno")} tu ON h.TurnoKey = tu.TurnoKey
     ${whereClause}
     GROUP BY e.NombreCompleto
     ORDER BY OEE DESC
+    LIMIT 10
   `;
 
   return runQuery(query, params);
