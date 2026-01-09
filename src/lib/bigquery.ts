@@ -35,7 +35,7 @@ export async function runQuery<T = Record<string, unknown>>(query: string): Prom
 
     const [rows] = await client.query({
         query,
-        location: "US",
+        // Location removed to allow BigQuery to detect automatic location or use dataset default
     });
 
     return rows as T[];

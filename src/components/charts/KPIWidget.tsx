@@ -7,6 +7,7 @@ interface KPIWidgetProps {
  prefix?: string;
  suffix?: string;
  format?: "number" | "currency" | "percent";
+ compact?: boolean;
 }
 
 function formatValue(
@@ -51,28 +52,43 @@ export default function KPIWidget({
  prefix,
  suffix,
  format = "number",
+ compact = false,
 }: KPIWidgetProps) {
  const change = calculateChange(value, previousValue);
  const isPositive = change !== null && change >= 0;
 
  return (
-  <div className="flex flex-col justify-center h-full p-4">
-   <span className="text-sm font-medium text-gray-400 uppercase tracking-wide">
+  <div
+   className={`flex flex-col justify-center h-full ${compact ? "p-2" : "p-4"}`}
+  >
+   <span
+    className={`font-medium text-gray-400 uppercase tracking-wide ${
+     compact ? "text-xs" : "text-sm"
+    }`}
+   >
     {title}
    </span>
-   <span className="text-4xl font-bold text-white mt-2">
+   <span
+    className={`font-bold text-white ${
+     compact ? "text-2xl mt-1" : "text-4xl mt-2"
+    }`}
+   >
     {formatValue(value, format, prefix, suffix)}
    </span>
    {change !== null && (
-    <div className="flex items-center mt-2">
+    <div className={`flex items-center ${compact ? "mt-1" : "mt-2"}`}>
      <span
-      className={`text-sm font-medium ${
+      className={`font-medium ${
        isPositive ? "text-emerald-400" : "text-red-400"
-      }`}
+      } ${compact ? "text-xs" : "text-sm"}`}
      >
       {isPositive ? "↑" : "↓"} {Math.abs(change).toFixed(1)}%
      </span>
-     <span className="text-xs text-gray-500 ml-2">vs anterior</span>
+     <span
+      className={`text-gray-500 ml-2 ${compact ? "text-[10px]" : "text-xs"}`}
+     >
+      vs anterior
+     </span>
     </div>
    )}
   </div>

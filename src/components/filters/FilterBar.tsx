@@ -35,7 +35,7 @@ export default function FilterBar({
  const { clearFilters } = useFilters();
 
  return (
-  <div className="flex flex-wrap items-end gap-4 p-4 bg-gray-900/50 border border-gray-800 rounded-xl mb-4">
+  <div className="flex flex-wrap items-end gap-4 p-4 bg-gray-900/50 border border-gray-800 rounded-xl">
    {showYear && (
     <SelectFilter
      id="filter-anio"

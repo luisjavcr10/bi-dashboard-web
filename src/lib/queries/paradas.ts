@@ -1,59 +1,59 @@
 import { runQuery } from "@/lib/bigquery";
 
 const PROJECT = process.env.BIGQUERY_PROJECT_ID || "ageless-runway-483614-u8";
-const DATASET = "PROCESADORA_DM";
+const DATASET = "procesadora_dm";
 
 function table(name: string) {
-    return `\`${PROJECT}.${DATASET}.${name}\``;
+  return `\`${PROJECT}.${DATASET}.${name}\``;
 }
 
 export interface ParadasResumen {
-    totalParadas: number;
-    totalDuracionMinutos: number;
-    totalDuracionTurno: number;
-    disponibilidadPorcentaje: number;
+  totalParadas: number;
+  totalDuracionMinutos: number;
+  totalDuracionTurno: number;
+  disponibilidadPorcentaje: number;
 }
 
 export interface ParadasPorCausa {
-    Causa: string;
-    NumeroParadas: number;
-    DuracionTotal: number;
-    PorcentajeDelTotal: number;
+  Causa: string;
+  NumeroParadas: number;
+  DuracionTotal: number;
+  PorcentajeDelTotal: number;
 }
 
 export interface TendenciaParadas {
-    Mes: string;
-    Anio: number;
-    NumeroParadas: number;
-    DuracionTotal: number;
+  Mes: string;
+  Anio: number;
+  NumeroParadas: number;
+  DuracionTotal: number;
 }
 
 export interface ParadasPorEtapa {
-    Etapa: string;
-    Tipo: string;
-    NumeroParadas: number;
-    DuracionTotal: number;
+  Etapa: string;
+  Tipo: string;
+  NumeroParadas: number;
+  DuracionTotal: number;
 }
 
 export interface ParadasPorTurno {
-    Turno: string;
-    NumeroParadas: number;
-    DuracionTotal: number;
-    Disponibilidad: number;
+  Turno: string;
+  NumeroParadas: number;
+  DuracionTotal: number;
+  Disponibilidad: number;
 }
 
 export async function getParadasResumen(filters?: {
-    anio?: number;
-    mes?: string;
-    planta?: string;
+  anio?: number;
+  mes?: string;
+  planta?: string;
 }): Promise<ParadasResumen> {
-    let whereClause = "WHERE 1=1";
+  let whereClause = "WHERE 1=1";
 
-    if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
-    if (filters?.mes) whereClause += ` AND t.Mes = '${filters.mes}'`;
-    if (filters?.planta) whereClause += ` AND o.Planta = '${filters.planta}'`;
+  if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
+  if (filters?.mes) whereClause += ` AND t.Mes = '${filters.mes}'`;
+  if (filters?.planta) whereClause += ` AND o.Planta = '${filters.planta}'`;
 
-    const query = `
+  const query = `
     SELECT 
       COALESCE(SUM(h.NumeroParadas), 0) as totalParadas,
       COALESCE(SUM(h.TotalDuracionParada), 0) as totalDuracionMinutos,
@@ -69,25 +69,25 @@ export async function getParadasResumen(filters?: {
     ${whereClause}
   `;
 
-    const rows = await runQuery<ParadasResumen>(query);
-    return rows[0] || {
-        totalParadas: 0,
-        totalDuracionMinutos: 0,
-        totalDuracionTurno: 0,
-        disponibilidadPorcentaje: 100,
-    };
+  const rows = await runQuery<ParadasResumen>(query);
+  return rows[0] || {
+    totalParadas: 0,
+    totalDuracionMinutos: 0,
+    totalDuracionTurno: 0,
+    disponibilidadPorcentaje: 100,
+  };
 }
 
 export async function getParadasPorCausa(filters?: {
-    anio?: number;
-    planta?: string;
+  anio?: number;
+  planta?: string;
 }): Promise<ParadasPorCausa[]> {
-    let whereClause = "WHERE 1=1";
+  let whereClause = "WHERE 1=1";
 
-    if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
-    if (filters?.planta) whereClause += ` AND o.Planta = '${filters.planta}'`;
+  if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
+  if (filters?.planta) whereClause += ` AND o.Planta = '${filters.planta}'`;
 
-    const query = `
+  const query = `
     WITH totales AS (
       SELECT SUM(TotalDuracionParada) as total_duracion
       FROM ${table("HechoParadas")} h
@@ -109,17 +109,17 @@ export async function getParadasPorCausa(filters?: {
     ORDER BY DuracionTotal DESC
   `;
 
-    return runQuery<ParadasPorCausa>(query);
+  return runQuery<ParadasPorCausa>(query);
 }
 
 export async function getTendenciaParadas(filters?: {
-    anio?: number;
+  anio?: number;
 }): Promise<TendenciaParadas[]> {
-    let whereClause = "WHERE 1=1";
+  let whereClause = "WHERE 1=1";
 
-    if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
+  if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
 
-    const query = `
+  const query = `
     SELECT 
       t.Mes,
       t.Anio,
@@ -132,17 +132,17 @@ export async function getTendenciaParadas(filters?: {
     ORDER BY t.Anio, t.Mes
   `;
 
-    return runQuery<TendenciaParadas>(query);
+  return runQuery<TendenciaParadas>(query);
 }
 
 export async function getParadasPorEtapa(filters?: {
-    anio?: number;
+  anio?: number;
 }): Promise<ParadasPorEtapa[]> {
-    let whereClause = "WHERE 1=1";
+  let whereClause = "WHERE 1=1";
 
-    if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
+  if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
 
-    const query = `
+  const query = `
     SELECT 
       p.Etapa,
       p.Tipo,
@@ -156,17 +156,17 @@ export async function getParadasPorEtapa(filters?: {
     ORDER BY DuracionTotal DESC
   `;
 
-    return runQuery<ParadasPorEtapa>(query);
+  return runQuery<ParadasPorEtapa>(query);
 }
 
 export async function getParadasPorTurno(filters?: {
-    anio?: number;
+  anio?: number;
 }): Promise<ParadasPorTurno[]> {
-    let whereClause = "WHERE 1=1";
+  let whereClause = "WHERE 1=1";
 
-    if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
+  if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
 
-    const query = `
+  const query = `
     SELECT 
       tu.Turno,
       SUM(h.NumeroParadas) as NumeroParadas,
@@ -180,5 +180,5 @@ export async function getParadasPorTurno(filters?: {
     ORDER BY Disponibilidad DESC
   `;
 
-    return runQuery<ParadasPorTurno>(query);
+  return runQuery<ParadasPorTurno>(query);
 }

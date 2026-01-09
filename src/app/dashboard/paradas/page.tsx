@@ -9,7 +9,8 @@ import {
  HorizontalBarChart,
  AreaChartWidget,
 } from "@/components/charts";
-import Link from "next/link";
+import DashboardHeader from "@/components/dashboard/DashboardHeader";
+import { HiClock } from "react-icons/hi2";
 
 interface DashboardData {
  kpis: {
@@ -68,24 +69,25 @@ function DashboardContent() {
 
  if (loading) {
   return (
-   <div className="flex items-center justify-center h-64">
-    <div className="text-gray-400">Cargando datos...</div>
+   <div className="flex-1 flex items-center justify-center text-gray-400">
+    Cargando datos...
    </div>
   );
  }
 
  if (error || !data) {
   return (
-   <div className="flex items-center justify-center h-64">
-    <div className="text-red-400">{error || "Sin datos"}</div>
+   <div className="flex-1 flex items-center justify-center text-red-400">
+    {error || "Sin datos"}
    </div>
   );
  }
 
  return (
-  <div className="space-y-6">
-   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-    <div className="bg-gray-900 border border-gray-700 rounded-xl p-4">
+  <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-5 lg:grid-rows-2 gap-4">
+   {/* Column 1: Stacked KPIs (Takes 1 column, spans all rows) */}
+   <div className="md:col-span-1 lg:row-span-2 flex flex-col gap-4 min-h-0">
+    <div className="flex-1 bg-gray-900 border border-gray-700 rounded-xl flex flex-col justify-center shadow-lg shadow-gray-950/50 p-2 min-h-[120px]">
      <GaugeWidget
       title="Disponibilidad"
       value={data.kpis.disponibilidad}
@@ -94,14 +96,14 @@ function DashboardContent() {
       thresholds={{ warning: 85, danger: 70 }}
      />
     </div>
-    <div className="bg-gray-900 border border-gray-700 rounded-xl p-4">
+    <div className="flex-1 bg-gray-900 border border-gray-700 rounded-xl flex flex-col justify-center shadow-lg shadow-gray-950/50 p-2 min-h-[120px]">
      <KPIWidget
       title="Total Paradas"
       value={data.kpis.totalParadas}
       format="number"
      />
     </div>
-    <div className="bg-gray-900 border border-gray-700 rounded-xl p-4">
+    <div className="flex-1 bg-gray-900 border border-gray-700 rounded-xl flex flex-col justify-center shadow-lg shadow-gray-950/50 p-2 min-h-[120px]">
      <KPIWidget
       title="Tiempo Perdido"
       value={data.kpis.tiempoPerdido}
@@ -111,54 +113,60 @@ function DashboardContent() {
     </div>
    </div>
 
-   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <div className="bg-gray-900 border border-gray-700 rounded-xl p-4">
-     <h3 className="text-white font-medium mb-4">Paradas por Causa</h3>
-     <div className="h-80">
-      <HorizontalBarChart data={data.charts.paradasPorCausa} valueKey="value" />
-     </div>
-    </div>
+   {/* Columns 2-5: Chart Grid (2x2) */}
 
-    <div className="bg-gray-900 border border-gray-700 rounded-xl p-4">
-     <h3 className="text-white font-medium mb-4">Tendencia de Paradas</h3>
-     <div className="h-80">
-      <AreaChartWidget
-       data={data.charts.tendenciaParadas}
-       xAxisKey="name"
-       yAxisKey="value"
-       showLegend={false}
-      />
-     </div>
+   {/* Top Left Chart */}
+   <div className="md:col-span-2 bg-gray-900 border border-gray-700 rounded-xl p-4 flex flex-col min-h-[300px] lg:min-h-0 shadow-lg shadow-gray-950/50">
+    <h3 className="text-white font-medium mb-4 shrink-0">Paradas por Causa</h3>
+    <div className="flex-1 min-h-0">
+     <HorizontalBarChart data={data.charts.paradasPorCausa} valueKey="value" />
     </div>
    </div>
 
-   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <div className="bg-gray-900 border border-gray-700 rounded-xl p-4">
-     <h3 className="text-white font-medium mb-4">Paradas por Etapa</h3>
-     <div className="h-72">
-      <BarChartWidget
-       data={data.charts.paradasPorEtapa}
-       xAxisKey="name"
-       yAxisKey="value"
-       showLegend={false}
-      />
-     </div>
+   {/* Top Right Chart */}
+   <div className="md:col-span-2 bg-gray-900 border border-gray-700 rounded-xl p-4 flex flex-col min-h-[300px] lg:min-h-0 shadow-lg shadow-gray-950/50">
+    <h3 className="text-white font-medium mb-4 shrink-0">
+     Tendencia de Paradas
+    </h3>
+    <div className="flex-1 min-h-0">
+     <AreaChartWidget
+      data={data.charts.tendenciaParadas}
+      xAxisKey="name"
+      yAxisKey="value"
+      showLegend={false}
+     />
     </div>
+   </div>
 
-    <div className="bg-gray-900 border border-gray-700 rounded-xl p-4">
-     <h3 className="text-white font-medium mb-4">Disponibilidad por Turno</h3>
-     <div className="h-72">
-      <BarChartWidget
-       data={data.charts.paradasPorTurno.map((t) => ({
-        name: t.name,
-        value: t.disponibilidad,
-       }))}
-       xAxisKey="name"
-       yAxisKey="value"
-       showLegend={false}
-       colors={["#10b981"]}
-      />
-     </div>
+   {/* Bottom Left Chart */}
+   <div className="md:col-span-2 bg-gray-900 border border-gray-700 rounded-xl p-4 flex flex-col min-h-[300px] lg:min-h-0 shadow-lg shadow-gray-950/50">
+    <h3 className="text-white font-medium mb-4 shrink-0">Paradas por Etapa</h3>
+    <div className="flex-1 min-h-0">
+     <BarChartWidget
+      data={data.charts.paradasPorEtapa}
+      xAxisKey="name"
+      yAxisKey="value"
+      showLegend={false}
+     />
+    </div>
+   </div>
+
+   {/* Bottom Right Chart */}
+   <div className="md:col-span-2 bg-gray-900 border border-gray-700 rounded-xl p-4 flex flex-col min-h-[300px] lg:min-h-0 shadow-lg shadow-gray-950/50">
+    <h3 className="text-white font-medium mb-4 shrink-0">
+     Disponibilidad por Turno
+    </h3>
+    <div className="flex-1 min-h-0">
+     <BarChartWidget
+      data={data.charts.paradasPorTurno.map((t) => ({
+       name: t.name,
+       value: t.disponibilidad,
+      }))}
+      xAxisKey="name"
+      yAxisKey="value"
+      showLegend={false}
+      colors={["#10b981"]}
+     />
     </div>
    </div>
   </div>
@@ -168,44 +176,12 @@ function DashboardContent() {
 export default function ParadasDashboard() {
  return (
   <FilterProvider>
-   <div className="min-h-screen bg-gray-950">
-    <header className="bg-gray-900 border-b border-gray-800 px-6 py-4">
-     <div className="max-w-[1600px] mx-auto flex items-center justify-between">
-      <div>
-       <h1 className="text-2xl font-bold text-white">
-        ⏱️ Dashboard de Paradas
-       </h1>
-       <p className="text-gray-400 text-sm mt-1">
-        Disponibilidad y análisis de causas
-       </p>
-      </div>
-      <nav className="flex gap-4">
-       <Link
-        href="/dashboard/produccion"
-        className="px-4 py-2 bg-gray-800 text-gray-300 rounded-lg text-sm hover:bg-gray-700"
-       >
-        Producción
-       </Link>
-       <Link
-        href="/dashboard/paradas"
-        className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm"
-       >
-        Paradas
-       </Link>
-       <Link
-        href="/dashboard/calidad"
-        className="px-4 py-2 bg-gray-800 text-gray-300 rounded-lg text-sm hover:bg-gray-700"
-       >
-        Calidad
-       </Link>
-      </nav>
-     </div>
-    </header>
-
-    <main className="max-w-[1600px] mx-auto p-6">
+   <div className="h-full flex flex-col p-3 lg:p-6 gap-4 overflow-y-auto lg:overflow-hidden">
+    <div className="flex-none flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+     <DashboardHeader title="Dashboard de Paradas" icon={HiClock} />
      <FilterBar showYear showMonth />
-     <DashboardContent />
-    </main>
+    </div>
+    <DashboardContent />
    </div>
   </FilterProvider>
  );

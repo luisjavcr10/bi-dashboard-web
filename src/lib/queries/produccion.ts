@@ -1,58 +1,58 @@
 import { runQuery } from "@/lib/bigquery";
 
 const PROJECT = process.env.BIGQUERY_PROJECT_ID || "ageless-runway-483614-u8";
-const DATASET = "PROCESADORA_DM";
+const DATASET = "procesadora_dm";
 
 function table(name: string) {
-    return `\`${PROJECT}.${DATASET}.${name}\``;
+  return `\`${PROJECT}.${DATASET}.${name}\``;
 }
 
 export interface ProduccionResumen {
-    totalPesoIngresado: number;
-    totalPesoSalida: number;
-    totalPesoMerma: number;
-    porcentajeMerma: number;
-    totalMallas: number;
+  totalPesoIngresado: number;
+  totalPesoSalida: number;
+  totalPesoMerma: number;
+  porcentajeMerma: number;
+  totalMallas: number;
 }
 
 export interface ProduccionPorEspecie {
-    Especie: string;
-    PesoSalida: number;
-    PesoMerma: number;
-    PorcentajeMerma: number;
+  Especie: string;
+  PesoSalida: number;
+  PesoMerma: number;
+  PorcentajeMerma: number;
 }
 
 export interface MermaPorTipo {
-    NombreMermaLean: string;
-    PesoMerma: number;
+  NombreMermaLean: string;
+  PesoMerma: number;
 }
 
 export interface TendenciaMerma {
-    Mes: string;
-    Anio: number;
-    PesoMerma: number;
-    PorcentajeMerma: number;
+  Mes: string;
+  Anio: number;
+  PesoMerma: number;
+  PorcentajeMerma: number;
 }
 
 export interface TopProductosMerma {
-    Producto: string;
-    Especie: string;
-    PesoMerma: number;
-    PorcentajeMerma: number;
+  Producto: string;
+  Especie: string;
+  PesoMerma: number;
+  PorcentajeMerma: number;
 }
 
 export async function getProduccionResumen(filters?: {
-    anio?: number;
-    mes?: string;
-    planta?: string;
+  anio?: number;
+  mes?: string;
+  planta?: string;
 }): Promise<ProduccionResumen> {
-    let whereClause = "WHERE 1=1";
+  let whereClause = "WHERE 1=1";
 
-    if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
-    if (filters?.mes) whereClause += ` AND t.Mes = '${filters.mes}'`;
-    if (filters?.planta) whereClause += ` AND o.Planta = '${filters.planta}'`;
+  if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
+  if (filters?.mes) whereClause += ` AND t.Mes = '${filters.mes}'`;
+  if (filters?.planta) whereClause += ` AND o.Planta = '${filters.planta}'`;
 
-    const query = `
+  const query = `
     SELECT 
       COALESCE(SUM(h.PesoIngresado), 0) as totalPesoIngresado,
       COALESCE(SUM(h.PesoSalida), 0) as totalPesoSalida,
@@ -69,26 +69,26 @@ export async function getProduccionResumen(filters?: {
     ${whereClause}
   `;
 
-    const rows = await runQuery<ProduccionResumen>(query);
-    return rows[0] || {
-        totalPesoIngresado: 0,
-        totalPesoSalida: 0,
-        totalPesoMerma: 0,
-        porcentajeMerma: 0,
-        totalMallas: 0,
-    };
+  const rows = await runQuery<ProduccionResumen>(query);
+  return rows[0] || {
+    totalPesoIngresado: 0,
+    totalPesoSalida: 0,
+    totalPesoMerma: 0,
+    porcentajeMerma: 0,
+    totalMallas: 0,
+  };
 }
 
 export async function getProduccionPorEspecie(filters?: {
-    anio?: number;
-    planta?: string;
+  anio?: number;
+  planta?: string;
 }): Promise<ProduccionPorEspecie[]> {
-    let whereClause = "WHERE 1=1";
+  let whereClause = "WHERE 1=1";
 
-    if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
-    if (filters?.planta) whereClause += ` AND o.Planta = '${filters.planta}'`;
+  if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
+  if (filters?.planta) whereClause += ` AND o.Planta = '${filters.planta}'`;
 
-    const query = `
+  const query = `
     SELECT 
       p.Especie,
       ROUND(SUM(h.PesoSalida), 2) as PesoSalida,
@@ -103,17 +103,17 @@ export async function getProduccionPorEspecie(filters?: {
     ORDER BY PesoSalida DESC
   `;
 
-    return runQuery<ProduccionPorEspecie>(query);
+  return runQuery<ProduccionPorEspecie>(query);
 }
 
 export async function getMermaPorTipo(filters?: {
-    anio?: number;
+  anio?: number;
 }): Promise<MermaPorTipo[]> {
-    let whereClause = "WHERE 1=1";
+  let whereClause = "WHERE 1=1";
 
-    if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
+  if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
 
-    const query = `
+  const query = `
     SELECT 
       m.NombreMermaLean,
       ROUND(SUM(h.PesoMerma), 2) as PesoMerma
@@ -125,17 +125,17 @@ export async function getMermaPorTipo(filters?: {
     ORDER BY PesoMerma DESC
   `;
 
-    return runQuery<MermaPorTipo>(query);
+  return runQuery<MermaPorTipo>(query);
 }
 
 export async function getTendenciaMerma(filters?: {
-    anio?: number;
+  anio?: number;
 }): Promise<TendenciaMerma[]> {
-    let whereClause = "WHERE 1=1";
+  let whereClause = "WHERE 1=1";
 
-    if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
+  if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
 
-    const query = `
+  const query = `
     SELECT 
       t.Mes,
       t.Anio,
@@ -148,11 +148,11 @@ export async function getTendenciaMerma(filters?: {
     ORDER BY t.Anio, t.Mes
   `;
 
-    return runQuery<TendenciaMerma>(query);
+  return runQuery<TendenciaMerma>(query);
 }
 
 export async function getTopProductosMerma(limit: number = 10): Promise<TopProductosMerma[]> {
-    const query = `
+  const query = `
     SELECT 
       p.Producto,
       p.Especie,
@@ -165,5 +165,5 @@ export async function getTopProductosMerma(limit: number = 10): Promise<TopProdu
     LIMIT ${limit}
   `;
 
-    return runQuery<TopProductosMerma>(query);
+  return runQuery<TopProductosMerma>(query);
 }

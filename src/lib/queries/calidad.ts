@@ -1,55 +1,55 @@
 import { runQuery } from "@/lib/bigquery";
 
 const PROJECT = process.env.BIGQUERY_PROJECT_ID || "ageless-runway-483614-u8";
-const DATASET = "PROCESADORA_DM";
+const DATASET = "procesadora_dm";
 
 function table(name: string) {
-    return `\`${PROJECT}.${DATASET}.${name}\``;
+  return `\`${PROJECT}.${DATASET}.${name}\``;
 }
 
 export interface CalidadResumen {
-    totalProductosCorrectos: number;
-    totalProcesos: number;
+  totalProductosCorrectos: number;
+  totalProcesos: number;
 }
 
 export interface CalidadPorTurno {
-    Turno: string;
-    ProductosCorrectos: number;
-    TotalProcesos: number;
+  Turno: string;
+  ProductosCorrectos: number;
+  TotalProcesos: number;
 }
 
 export interface CalidadPorProducto {
-    Producto: string;
-    Especie: string;
-    ProductosCorrectos: number;
+  Producto: string;
+  Especie: string;
+  ProductosCorrectos: number;
 }
 
 export interface TopEmpleados {
-    NombreCompleto: string;
-    AntiguedadAnios: number;
-    ProductosCorrectos: number;
-    TotalProcesos: number;
-    PromedioProductos: number;
+  NombreCompleto: string;
+  AntiguedadAnios: number;
+  ProductosCorrectos: number;
+  TotalProcesos: number;
+  PromedioProductos: number;
 }
 
 export interface RendimientoPorAntiguedad {
-    RangoAntiguedad: string;
-    PromedioProductos: number;
-    TotalEmpleados: number;
+  RangoAntiguedad: string;
+  PromedioProductos: number;
+  TotalEmpleados: number;
 }
 
 export async function getCalidadResumen(filters?: {
-    anio?: number;
-    mes?: string;
-    planta?: string;
+  anio?: number;
+  mes?: string;
+  planta?: string;
 }): Promise<CalidadResumen> {
-    let whereClause = "WHERE 1=1";
+  let whereClause = "WHERE 1=1";
 
-    if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
-    if (filters?.mes) whereClause += ` AND t.Mes = '${filters.mes}'`;
-    if (filters?.planta) whereClause += ` AND o.Planta = '${filters.planta}'`;
+  if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
+  if (filters?.mes) whereClause += ` AND t.Mes = '${filters.mes}'`;
+  if (filters?.planta) whereClause += ` AND o.Planta = '${filters.planta}'`;
 
-    const query = `
+  const query = `
     SELECT 
       COALESCE(SUM(h.ProductosCorrectos), 0) as totalProductosCorrectos,
       COUNT(DISTINCT h.idProcesoEmpaque) as totalProcesos
@@ -59,23 +59,23 @@ export async function getCalidadResumen(filters?: {
     ${whereClause}
   `;
 
-    const rows = await runQuery<CalidadResumen>(query);
-    return rows[0] || {
-        totalProductosCorrectos: 0,
-        totalProcesos: 0,
-    };
+  const rows = await runQuery<CalidadResumen>(query);
+  return rows[0] || {
+    totalProductosCorrectos: 0,
+    totalProcesos: 0,
+  };
 }
 
 export async function getCalidadPorTurno(filters?: {
-    anio?: number;
-    planta?: string;
+  anio?: number;
+  planta?: string;
 }): Promise<CalidadPorTurno[]> {
-    let whereClause = "WHERE 1=1";
+  let whereClause = "WHERE 1=1";
 
-    if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
-    if (filters?.planta) whereClause += ` AND o.Planta = '${filters.planta}'`;
+  if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
+  if (filters?.planta) whereClause += ` AND o.Planta = '${filters.planta}'`;
 
-    const query = `
+  const query = `
     SELECT 
       tu.Turno,
       SUM(h.ProductosCorrectos) as ProductosCorrectos,
@@ -89,17 +89,17 @@ export async function getCalidadPorTurno(filters?: {
     ORDER BY ProductosCorrectos DESC
   `;
 
-    return runQuery<CalidadPorTurno>(query);
+  return runQuery<CalidadPorTurno>(query);
 }
 
 export async function getCalidadPorProducto(filters?: {
-    anio?: number;
+  anio?: number;
 }): Promise<CalidadPorProducto[]> {
-    let whereClause = "WHERE 1=1";
+  let whereClause = "WHERE 1=1";
 
-    if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
+  if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
 
-    const query = `
+  const query = `
     SELECT 
       p.Producto,
       p.Especie,
@@ -112,17 +112,17 @@ export async function getCalidadPorProducto(filters?: {
     ORDER BY ProductosCorrectos DESC
   `;
 
-    return runQuery<CalidadPorProducto>(query);
+  return runQuery<CalidadPorProducto>(query);
 }
 
 export async function getTopEmpleados(limit: number = 10, filters?: {
-    anio?: number;
+  anio?: number;
 }): Promise<TopEmpleados[]> {
-    let whereClause = "WHERE 1=1";
+  let whereClause = "WHERE 1=1";
 
-    if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
+  if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
 
-    const query = `
+  const query = `
     SELECT 
       e.NombreCompleto,
       e.AntiguedadAnios,
@@ -138,17 +138,17 @@ export async function getTopEmpleados(limit: number = 10, filters?: {
     LIMIT ${limit}
   `;
 
-    return runQuery<TopEmpleados>(query);
+  return runQuery<TopEmpleados>(query);
 }
 
 export async function getRendimientoPorAntiguedad(filters?: {
-    anio?: number;
+  anio?: number;
 }): Promise<RendimientoPorAntiguedad[]> {
-    let whereClause = "WHERE 1=1";
+  let whereClause = "WHERE 1=1";
 
-    if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
+  if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
 
-    const query = `
+  const query = `
     SELECT 
       CASE 
         WHEN e.AntiguedadAnios < 1 THEN '0-1 años'
@@ -166,5 +166,5 @@ export async function getRendimientoPorAntiguedad(filters?: {
     ORDER BY PromedioProductos DESC
   `;
 
-    return runQuery<RendimientoPorAntiguedad>(query);
+  return runQuery<RendimientoPorAntiguedad>(query);
 }

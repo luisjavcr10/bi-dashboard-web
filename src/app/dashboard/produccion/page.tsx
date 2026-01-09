@@ -9,7 +9,8 @@ import {
  KPIWidget,
  TableWidget,
 } from "@/components/charts";
-import Link from "next/link";
+import DashboardHeader from "@/components/dashboard/DashboardHeader";
+import { HiChartBar } from "react-icons/hi2";
 
 interface DashboardData {
  kpis: {
@@ -68,102 +69,112 @@ function DashboardContent() {
 
  if (loading) {
   return (
-   <div className="flex items-center justify-center h-64">
-    <div className="text-gray-400">Cargando datos...</div>
+   <div className="flex-1 flex items-center justify-center text-gray-400">
+    Cargando datos...
    </div>
   );
  }
 
  if (error || !data) {
   return (
-   <div className="flex items-center justify-center h-64">
-    <div className="text-red-400">{error || "Sin datos"}</div>
+   <div className="flex-1 flex items-center justify-center text-red-400">
+    {error || "Sin datos"}
    </div>
   );
  }
 
  return (
-  <div className="space-y-6">
-   <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-    <div className="bg-gray-900 border border-gray-700 rounded-xl p-4">
+  <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-5 lg:grid-rows-2 gap-4">
+   {/* Column 1: Stacked KPIs (4 items) */}
+   <div className="md:col-span-1 lg:row-span-2 flex flex-col gap-4 min-h-0">
+    <div className="flex-1 bg-gray-900 border border-gray-700 rounded-xl flex flex-col justify-center shadow-lg shadow-gray-950/50 p-2 min-h-[100px]">
      <KPIWidget
       title="Producción Total"
       value={data.kpis.produccionTotal}
       format="number"
       suffix=" kg"
+      compact
      />
     </div>
-    <div className="bg-gray-900 border border-gray-700 rounded-xl p-4">
+    <div className="flex-1 bg-gray-900 border border-gray-700 rounded-xl flex flex-col justify-center shadow-lg shadow-gray-950/50 p-2 min-h-[100px]">
      <KPIWidget
       title="Merma Total"
       value={data.kpis.mermaTotal}
       format="number"
       suffix=" kg"
+      compact
      />
     </div>
-    <div className="bg-gray-900 border border-gray-700 rounded-xl p-4">
+    <div className="flex-1 bg-gray-900 border border-gray-700 rounded-xl flex flex-col justify-center shadow-lg shadow-gray-950/50 p-2 min-h-[100px]">
      <KPIWidget
       title="% Merma"
       value={data.kpis.porcentajeMerma}
       format="percent"
+      compact
      />
     </div>
-    <div className="bg-gray-900 border border-gray-700 rounded-xl p-4">
+    <div className="flex-1 bg-gray-900 border border-gray-700 rounded-xl flex flex-col justify-center shadow-lg shadow-gray-950/50 p-2 min-h-[100px]">
      <KPIWidget
       title="Total Mallas"
       value={data.kpis.totalMallas}
       format="number"
+      compact
      />
     </div>
    </div>
 
-   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <div className="bg-gray-900 border border-gray-700 rounded-xl p-4">
-     <h3 className="text-white font-medium mb-4">Producción por Especie</h3>
-     <div className="h-72">
-      <BarChartWidget
-       data={data.charts.produccionPorEspecie}
-       xAxisKey="name"
-       yAxisKey="value"
-       showLegend={false}
-      />
-     </div>
-    </div>
-
-    <div className="bg-gray-900 border border-gray-700 rounded-xl p-4">
-     <h3 className="text-white font-medium mb-4">Tendencia de Merma</h3>
-     <div className="h-72">
-      <LineChartWidget
-       data={data.charts.tendenciaMerma}
-       xAxisKey="name"
-       yAxisKey="value"
-       showLegend={false}
-      />
-     </div>
+   {/* Grid: 2x2 Charts */}
+   {/* Top Left */}
+   <div className="md:col-span-2 bg-gray-900 border border-gray-700 rounded-xl p-4 flex flex-col min-h-[300px] lg:min-h-0 shadow-lg shadow-gray-950/50">
+    <h3 className="text-white font-medium mb-4 shrink-0">
+     Producción por Especie
+    </h3>
+    <div className="flex-1 min-h-0">
+     <BarChartWidget
+      data={data.charts.produccionPorEspecie}
+      xAxisKey="name"
+      yAxisKey="value"
+      showLegend={false}
+     />
     </div>
    </div>
 
-   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <div className="bg-gray-900 border border-gray-700 rounded-xl p-4">
-     <h3 className="text-white font-medium mb-4">Merma por Tipo</h3>
-     <div className="h-72">
-      <PieChartWidget data={data.charts.mermaPorTipo} showLegend />
-     </div>
+   {/* Top Right */}
+   <div className="md:col-span-2 bg-gray-900 border border-gray-700 rounded-xl p-4 flex flex-col min-h-[300px] lg:min-h-0 shadow-lg shadow-gray-950/50">
+    <h3 className="text-white font-medium mb-4 shrink-0">Tendencia de Merma</h3>
+    <div className="flex-1 min-h-0">
+     <LineChartWidget
+      data={data.charts.tendenciaMerma}
+      xAxisKey="name"
+      yAxisKey="value"
+      showLegend={false}
+     />
     </div>
+   </div>
 
-    <div className="bg-gray-900 border border-gray-700 rounded-xl p-4">
-     <h3 className="text-white font-medium mb-4">Top Productos con Merma</h3>
-     <div className="h-72">
-      <TableWidget
-       data={data.tables.topProductosMerma}
-       columns={[
-        { key: "Producto", label: "Producto" },
-        { key: "Especie", label: "Especie" },
-        { key: "PesoMerma", label: "Merma (kg)", align: "right" },
-        { key: "PorcentajeMerma", label: "%", align: "right" },
-       ]}
-      />
-     </div>
+   {/* Bottom Left */}
+   <div className="md:col-span-2 bg-gray-900 border border-gray-700 rounded-xl p-4 flex flex-col min-h-[300px] lg:min-h-0 shadow-lg shadow-gray-950/50">
+    <h3 className="text-white font-medium mb-4 shrink-0">Merma por Tipo</h3>
+    <div className="flex-1 min-h-0">
+     <PieChartWidget data={data.charts.mermaPorTipo} showLegend />
+    </div>
+   </div>
+
+   {/* Bottom Right */}
+   <div className="md:col-span-2 bg-gray-900 border border-gray-700 rounded-xl p-4 flex flex-col min-h-[300px] lg:min-h-0 shadow-lg shadow-gray-950/50">
+    <h3 className="text-white font-medium mb-4 shrink-0">
+     Top Productos con Merma
+    </h3>
+    <div className="flex-1 min-h-0 overflow-hidden">
+     <TableWidget
+      data={data.tables.topProductosMerma}
+      columns={[
+       { key: "Producto", label: "Producto" },
+       { key: "Especie", label: "Especie" },
+       { key: "PesoMerma", label: "Merma", align: "right" },
+       { key: "PorcentajeMerma", label: "%", align: "right" },
+      ]}
+     />
     </div>
    </div>
   </div>
@@ -173,44 +184,12 @@ function DashboardContent() {
 export default function ProduccionDashboard() {
  return (
   <FilterProvider>
-   <div className="min-h-screen bg-gray-950">
-    <header className="bg-gray-900 border-b border-gray-800 px-6 py-4">
-     <div className="max-w-[1600px] mx-auto flex items-center justify-between">
-      <div>
-       <h1 className="text-2xl font-bold text-white">
-        📊 Dashboard de Producción
-       </h1>
-       <p className="text-gray-400 text-sm mt-1">
-        Métricas de producción y merma
-       </p>
-      </div>
-      <nav className="flex gap-4">
-       <Link
-        href="/dashboard/produccion"
-        className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm"
-       >
-        Producción
-       </Link>
-       <Link
-        href="/dashboard/paradas"
-        className="px-4 py-2 bg-gray-800 text-gray-300 rounded-lg text-sm hover:bg-gray-700"
-       >
-        Paradas
-       </Link>
-       <Link
-        href="/dashboard/calidad"
-        className="px-4 py-2 bg-gray-800 text-gray-300 rounded-lg text-sm hover:bg-gray-700"
-       >
-        Calidad
-       </Link>
-      </nav>
-     </div>
-    </header>
-
-    <main className="max-w-[1600px] mx-auto p-6">
+   <div className="h-full flex flex-col p-3 lg:p-6 gap-4 overflow-y-auto lg:overflow-hidden">
+    <div className="flex-none flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+     <DashboardHeader title="Dashboard de Producción" icon={HiChartBar} />
      <FilterBar showYear showMonth />
-     <DashboardContent />
-    </main>
+    </div>
+    <DashboardContent />
    </div>
   </FilterProvider>
  );
