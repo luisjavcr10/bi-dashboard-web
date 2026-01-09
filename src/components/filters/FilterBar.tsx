@@ -35,6 +35,7 @@ interface FilterBarProps {
  showDay?: boolean;
  showPlanta?: boolean;
  plantas?: string[];
+ children?: React.ReactNode;
 }
 
 export default function FilterBar({
@@ -43,6 +44,7 @@ export default function FilterBar({
  showDay = false,
  showPlanta = false,
  plantas = [],
+ children,
 }: FilterBarProps) {
  const { clearFilters } = useFilters();
 
@@ -81,6 +83,7 @@ export default function FilterBar({
    >
     Limpiar
    </button>
+   {children}
   </div>
  );
 }
