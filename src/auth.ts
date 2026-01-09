@@ -1,26 +1,9 @@
 
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { BigQuery } from "@google-cloud/bigquery";
+import { getBigQueryClient } from "@/lib/bigquery";
 import bcrypt from "bcryptjs";
-import path from "path";
 import { authConfig } from "./auth.config";
-
-// Configurar cliente BigQuery para runtime (igual que en scripts pero adaptado)
-const getBigQueryClient = () => {
-    const projectId = process.env.BIGQUERY_PROJECT_ID || "procesadora-dm";
-
-    if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
-        const credentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
-        return new BigQuery({ projectId, credentials });
-    }
-
-    const credentialsPath = path.join(
-        process.cwd(),
-        process.env.GOOGLE_APPLICATION_CREDENTIALS || "./credentials/bigquery-service-account.json"
-    );
-    return new BigQuery({ projectId, keyFilename: credentialsPath });
-};
 
 async function getUserByEmail(email: string) {
     const bigquery = getBigQueryClient();
