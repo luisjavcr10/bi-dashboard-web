@@ -2,11 +2,12 @@
 
 import { createContext, useContext, useState, ReactNode } from "react";
 
-interface FilterState {
+export interface FilterState {
  anio?: number;
  mes?: string;
  planta?: string;
  turno?: string;
+ dia?: number;
  especie?: string;
 }
 

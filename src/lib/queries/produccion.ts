@@ -44,13 +44,15 @@ export interface TopProductosMerma {
 export async function getProduccionResumen(filters?: {
   anio?: number;
   mes?: string;
+  dia?: number;
   planta?: string;
 }): Promise<ProduccionResumen> {
   let whereClause = "WHERE 1=1";
 
   if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
-  if (filters?.mes) whereClause += ` AND t.Mes = '${filters.mes}'`;
-  if (filters?.planta) whereClause += ` AND o.Planta = '${filters.planta}'`;
+  if (filters?.mes) whereClause += ` AND LOWER(t.Mes) = LOWER('${filters.mes}')`;
+  if (filters?.dia) whereClause += ` AND t.Dia = ${filters.dia}`;
+  if (filters?.planta) whereClause += ` AND LOWER(o.Planta) = LOWER('${filters.planta}')`;
 
   const query = `
     SELECT 
@@ -81,12 +83,16 @@ export async function getProduccionResumen(filters?: {
 
 export async function getProduccionPorEspecie(filters?: {
   anio?: number;
+  mes?: string;
+  dia?: number;
   planta?: string;
 }): Promise<ProduccionPorEspecie[]> {
   let whereClause = "WHERE 1=1";
 
   if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
-  if (filters?.planta) whereClause += ` AND o.Planta = '${filters.planta}'`;
+  if (filters?.mes) whereClause += ` AND LOWER(t.Mes) = LOWER('${filters.mes}')`;
+  if (filters?.dia) whereClause += ` AND t.Dia = ${filters.dia}`;
+  if (filters?.planta) whereClause += ` AND LOWER(o.Planta) = LOWER('${filters.planta}')`;
 
   const query = `
     SELECT 
@@ -108,10 +114,14 @@ export async function getProduccionPorEspecie(filters?: {
 
 export async function getMermaPorTipo(filters?: {
   anio?: number;
+  mes?: string;
+  dia?: number;
 }): Promise<MermaPorTipo[]> {
   let whereClause = "WHERE 1=1";
 
   if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
+  if (filters?.mes) whereClause += ` AND LOWER(t.Mes) = LOWER('${filters.mes}')`;
+  if (filters?.dia) whereClause += ` AND t.Dia = ${filters.dia}`;
 
   const query = `
     SELECT 
@@ -130,10 +140,14 @@ export async function getMermaPorTipo(filters?: {
 
 export async function getTendenciaMerma(filters?: {
   anio?: number;
+  mes?: string;
+  dia?: number;
 }): Promise<TendenciaMerma[]> {
   let whereClause = "WHERE 1=1";
 
   if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
+  if (filters?.mes) whereClause += ` AND LOWER(t.Mes) = LOWER('${filters.mes}')`;
+  if (filters?.dia) whereClause += ` AND t.Dia = ${filters.dia}`;
 
   const query = `
     SELECT 

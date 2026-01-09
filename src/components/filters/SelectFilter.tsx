@@ -1,12 +1,12 @@
 "use client";
 
-import { useFilters } from "./FilterContext";
+import { useFilters, FilterState } from "./FilterContext";
 
 interface SelectFilterProps {
  id: string;
  label: string;
  options: { value: string | number; label: string }[];
- filterKey: "anio" | "mes" | "planta" | "turno" | "especie";
+ filterKey: keyof FilterState;
 }
 
 export default function SelectFilter({

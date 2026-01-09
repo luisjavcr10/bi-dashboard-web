@@ -19,9 +19,15 @@ const MONTHS = [
  { value: "Diciembre", label: "Diciembre" },
 ];
 
+const DAYS = Array.from({ length: 31 }, (_, i) => ({
+ value: i + 1,
+ label: String(i + 1),
+}));
+
 interface FilterBarProps {
  showYear?: boolean;
  showMonth?: boolean;
+ showDay?: boolean;
  showPlanta?: boolean;
  plantas?: string[];
 }
@@ -29,13 +35,14 @@ interface FilterBarProps {
 export default function FilterBar({
  showYear = true,
  showMonth = true,
+ showDay = false,
  showPlanta = false,
  plantas = [],
 }: FilterBarProps) {
  const { clearFilters } = useFilters();
 
  return (
-  <div className="flex flex-wrap items-end gap-4 p-4 bg-gray-900/50 border border-gray-800 rounded-xl">
+  <div className="flex flex-wrap items-end gap-3 p-3 bg-gray-900/50 border border-gray-800 rounded-xl">
    {showYear && (
     <SelectFilter
      id="filter-anio"
@@ -52,6 +59,9 @@ export default function FilterBar({
      filterKey="mes"
     />
    )}
+   {showDay && (
+    <SelectFilter id="filter-dia" label="Día" options={DAYS} filterKey="dia" />
+   )}
    {showPlanta && plantas.length > 0 && (
     <SelectFilter
      id="filter-planta"
@@ -62,9 +72,9 @@ export default function FilterBar({
    )}
    <button
     onClick={clearFilters}
-    className="px-4 py-2 bg-gray-800 text-gray-400 rounded-lg text-sm hover:bg-gray-700 transition-colors"
+    className="h-10 px-4 bg-gray-800 text-gray-400 rounded-lg text-sm hover:bg-gray-700 transition-colors border border-gray-700 hover:text-white"
    >
-    Limpiar Filtros
+    Limpiar
    </button>
   </div>
  );

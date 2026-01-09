@@ -7,19 +7,44 @@ export function getBigQueryClient(): BigQuery {
     if (!bigqueryClient) {
         const projectId = process.env.BIGQUERY_PROJECT_ID || "ageless-runway-483614-u8";
 
-        // Check if credentials are provided as JSON string (for Vercel/production)
-        if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
-            const credentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
+        // Helper function to try parsing JSON credentials
+        const getCredentials = () => {
+            // Priority 1: Explicit JSON variable
+            if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+                try {
+                    return JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
+                } catch (e) {
+                    console.error("Failed to parse GOOGLE_APPLICATION_CREDENTIALS_JSON", e);
+                }
+            }
+
+            // Priority 2: Check if GOOGLE_APPLICATION_CREDENTIALS contains JSON (starts with {)
+            if (process.env.GOOGLE_APPLICATION_CREDENTIALS && process.env.GOOGLE_APPLICATION_CREDENTIALS.trim().startsWith('{')) {
+                try {
+                    return JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS);
+                } catch (e) {
+                    console.error("Failed to parse GOOGLE_APPLICATION_CREDENTIALS as JSON", e);
+                }
+            }
+
+            return null;
+        };
+
+        const credentials = getCredentials();
+
+        if (credentials) {
+            // Initialize with credential object
             bigqueryClient = new BigQuery({
                 projectId,
                 credentials,
             });
         } else {
-            // Use file-based credentials (for local development)
+            // Fallback: Use file-based credentials (local development or path provided)
             const credentialsPath = path.join(
                 process.cwd(),
                 process.env.GOOGLE_APPLICATION_CREDENTIALS || "./credentials/bigquery-service-account.json"
             );
+
             bigqueryClient = new BigQuery({
                 projectId,
                 keyFilename: credentialsPath,

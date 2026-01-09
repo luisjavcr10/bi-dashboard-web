@@ -13,9 +13,10 @@ export async function GET(request: NextRequest) {
         const { searchParams } = new URL(request.url);
         const anio = searchParams.get("anio") ? parseInt(searchParams.get("anio")!) : undefined;
         const mes = searchParams.get("mes") || undefined;
+        const dia = searchParams.get("dia") ? parseInt(searchParams.get("dia")!) : undefined;
         const planta = searchParams.get("planta") || undefined;
 
-        const filters = { anio, mes, planta };
+        const filters = { anio, mes, dia, planta };
 
         const [resumen, porEspecie, mermaPorTipo, tendencia, topProductos] = await Promise.all([
             getProduccionResumen(filters),
