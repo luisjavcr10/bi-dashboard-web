@@ -1,17 +1,11 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+import { Be_Vietnam_Pro } from "next/font/google";
 import "./globals.css";
-import Sidebar from "@/components/layout/Sidebar";
 
-const geistSans = localFont({
- src: "./fonts/GeistVF.woff",
- variable: "--font-geist-sans",
- weight: "100 900",
-});
-const geistMono = localFont({
- src: "./fonts/GeistMonoVF.woff",
- variable: "--font-geist-mono",
- weight: "100 900",
+const beVietmanPro = Be_Vietnam_Pro({
+ weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+ style: ["italic", "normal"],
+ subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
@@ -26,14 +20,7 @@ export default function RootLayout({
 }>) {
  return (
   <html lang="es">
-   <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-    <div className="flex h-screen bg-gray-950">
-     <Sidebar />
-     <main className="flex-1 w-full min-w-0 bg-gray-950 transition-all duration-300 overflow-y-auto">
-      {children}
-     </main>
-    </div>
-   </body>
+   <body className={`${beVietmanPro.className} antialiased`}>{children}</body>
   </html>
  );
 }

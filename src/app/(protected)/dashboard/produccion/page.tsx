@@ -10,7 +10,8 @@ import {
  TableWidget,
 } from "@/components/charts";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
-import { HiChartBar } from "react-icons/hi2";
+import { HiChartBar, HiExclamationCircle } from "react-icons/hi2";
+import EmptyState from "@/components/ui/EmptyState";
 
 interface DashboardData {
  kpis: {
@@ -68,19 +69,21 @@ function DashboardContent() {
  }, [filters, getQueryParams]);
 
  if (loading) {
+  return <EmptyState isLoading={true} />;
+ }
+
+ if (error) {
   return (
-   <div className="flex-1 flex items-center justify-center text-gray-400">
-    Cargando datos...
-   </div>
+   <EmptyState
+    title="Error al cargar datos"
+    message={error}
+    icon={HiExclamationCircle}
+   />
   );
  }
 
- if (error || !data) {
-  return (
-   <div className="flex-1 flex items-center justify-center text-red-400">
-    {error || "Sin datos"}
-   </div>
-  );
+ if (!data) {
+  return <EmptyState />;
  }
 
  return (

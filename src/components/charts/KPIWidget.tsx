@@ -24,14 +24,16 @@ function formatValue(
    formatted = new Intl.NumberFormat("es-MX", {
     style: "currency",
     currency: "MXN",
-    minimumFractionDigits: 0,
+    maximumFractionDigits: 1,
    }).format(value);
    break;
   case "percent":
    formatted = `${value.toFixed(1)}%`;
    break;
   default:
-   formatted = new Intl.NumberFormat("es-MX").format(value);
+   formatted = new Intl.NumberFormat("es-MX", {
+    maximumFractionDigits: 1,
+   }).format(value);
  }
 
  return `${prefix || ""}${formatted}${suffix || ""}`;
@@ -59,22 +61,24 @@ export default function KPIWidget({
 
  return (
   <div
-   className={`flex flex-col justify-center h-full ${compact ? "p-2" : "p-4"}`}
+   className={`flex flex-col justify-center h-full ${compact ? "p-3" : "p-4"}`}
   >
    <span
-    className={`font-medium text-gray-400 uppercase tracking-wide ${
-     compact ? "text-xs" : "text-sm"
+    className={`font-medium text-gray-400 uppercase tracking-wide truncate ${
+     compact ? "text-[10px]" : "text-sm"
     }`}
    >
     {title}
    </span>
-   <span
-    className={`font-bold text-white ${
-     compact ? "text-2xl mt-1" : "text-4xl mt-2"
-    }`}
-   >
-    {formatValue(value, format, prefix, suffix)}
-   </span>
+   <div className="w-full overflow-x-auto scrollbar-hide">
+    <span
+     className={`font-bold text-white block whitespace-nowrap ${
+      compact ? "text-xl mt-1" : "text-3xl mt-2"
+     }`}
+    >
+     {formatValue(value, format, prefix, suffix)}
+    </span>
+   </div>
    {change !== null && (
     <div className={`flex items-center ${compact ? "mt-1" : "mt-2"}`}>
      <span
@@ -85,7 +89,9 @@ export default function KPIWidget({
       {isPositive ? "↑" : "↓"} {Math.abs(change).toFixed(1)}%
      </span>
      <span
-      className={`text-gray-500 ml-2 ${compact ? "text-[10px]" : "text-xs"}`}
+      className={`text-gray-500 ml-2 whitespace-nowrap ${
+       compact ? "text-[10px]" : "text-xs"
+      }`}
      >
       vs anterior
      </span>

@@ -2,32 +2,38 @@
 
 import { useEffect, useState } from "react";
 import { FilterProvider, FilterBar, useFilters } from "@/components/filters";
-import { BarChartWidget, KPIWidget, TableWidget } from "@/components/charts";
+import {
+ BarChartWidget,
+ KPIWidget,
+ GaugeWidget,
+ HorizontalBarChart,
+ AreaChartWidget,
+} from "@/components/charts";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
-import { HiCheckBadge } from "react-icons/hi2";
+import { HiClock, HiExclamationCircle } from "react-icons/hi2";
+import EmptyState from "@/components/ui/EmptyState";
 
 interface DashboardData {
  kpis: {
-  productosCorrectos: number;
-  totalProcesos: number;
+  disponibilidad: number;
+  totalParadas: number;
+  tiempoPerdido: number;
  };
  charts: {
-  calidadPorTurno: { name: string; value: number; procesos: number }[];
-  calidadPorProducto: { name: string; especie: string; value: number }[];
-  rendimientoPorAntiguedad: {
+  paradasPorCausa: {
    name: string;
    value: number;
-   empleados: number;
+   cantidad: number;
+   porcentaje: number;
   }[];
- };
- tables: {
-  topEmpleados: {
-   NombreCompleto: string;
-   AntiguedadAnios: number;
-   ProductosCorrectos: number;
-   TotalProcesos: number;
-   PromedioProductos: number;
+  tendenciaParadas: { name: string; value: number; cantidad: number }[];
+  paradasPorEtapa: {
+   name: string;
+   tipo: string;
+   value: number;
+   cantidad: number;
   }[];
+  paradasPorTurno: { name: string; value: number; disponibilidad: number }[];
  };
 }
 
@@ -42,7 +48,7 @@ function DashboardContent() {
    setLoading(true);
    try {
     const queryParams = getQueryParams();
-    const url = `/api/dashboard/calidad${queryParams ? `?${queryParams}` : ""}`;
+    const url = `/api/dashboard/paradas${queryParams ? `?${queryParams}` : ""}`;
     const res = await fetch(url);
     const json = await res.json();
 
@@ -63,48 +69,102 @@ function DashboardContent() {
  }, [filters, getQueryParams]);
 
  if (loading) {
+  return <EmptyState isLoading={true} />;
+ }
+
+ if (error) {
   return (
-   <div className="flex-1 flex items-center justify-center text-gray-400">
-    Cargando datos...
-   </div>
+   <EmptyState
+    title="Error al cargar datos"
+    message={error}
+    icon={HiExclamationCircle}
+   />
   );
  }
 
- if (error || !data) {
-  return (
-   <div className="flex-1 flex items-center justify-center text-red-400">
-    {error || "Sin datos"}
-   </div>
-  );
+ if (!data) {
+  return <EmptyState />;
  }
 
  return (
   <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-5 lg:grid-rows-2 gap-4">
-   {/* Column 1: Stacked KPIs (2 items) */}
+   {/* Column 1: Stacked KPIs (Takes 1 column, spans all rows) */}
    <div className="md:col-span-1 lg:row-span-2 flex flex-col gap-4 min-h-0">
-    <div className="flex-1 bg-gray-900 border border-gray-700 rounded-xl flex flex-col justify-center shadow-lg shadow-gray-950/50 p-4 min-h-[140px]">
+    <div className="flex-1 bg-gray-900 border border-gray-700 rounded-xl flex flex-col justify-center shadow-lg shadow-gray-950/50 p-2 min-h-[120px]">
+     <GaugeWidget
+      title="Disponibilidad"
+      value={data.kpis.disponibilidad}
+      maxValue={100}
+      suffix="%"
+      thresholds={{ warning: 85, danger: 70 }}
+     />
+    </div>
+    <div className="flex-1 bg-gray-900 border border-gray-700 rounded-xl flex flex-col justify-center shadow-lg shadow-gray-950/50 p-2 min-h-[120px]">
      <KPIWidget
-      title="Productos Correctos"
-      value={data.kpis.productosCorrectos}
+      title="Total Paradas"
+      value={data.kpis.totalParadas}
       format="number"
      />
     </div>
-    <div className="flex-1 bg-gray-900 border border-gray-700 rounded-xl flex flex-col justify-center shadow-lg shadow-gray-950/50 p-4 min-h-[140px]">
+    <div className="flex-1 bg-gray-900 border border-gray-700 rounded-xl flex flex-col justify-center shadow-lg shadow-gray-950/50 p-2 min-h-[120px]">
      <KPIWidget
-      title="Total Procesos"
-      value={data.kpis.totalProcesos}
+      title="Tiempo Perdido"
+      value={data.kpis.tiempoPerdido}
       format="number"
+      suffix=" min"
      />
     </div>
    </div>
 
-   {/* Grid: 2x2 Charts */}
-   {/* Top Left */}
+   {/* Columns 2-5: Chart Grid (2x2) */}
+
+   {/* Top Left Chart */}
    <div className="md:col-span-2 bg-gray-900 border border-gray-700 rounded-xl p-4 flex flex-col min-h-[300px] lg:min-h-0 shadow-lg shadow-gray-950/50">
-    <h3 className="text-white font-medium mb-4 shrink-0">Calidad por Turno</h3>
+    <h3 className="text-white font-medium mb-4 shrink-0">Paradas por Causa</h3>
+    <div className="flex-1 min-h-0">
+     <HorizontalBarChart data={data.charts.paradasPorCausa} valueKey="value" />
+    </div>
+   </div>
+
+   {/* Top Right Chart */}
+   <div className="md:col-span-2 bg-gray-900 border border-gray-700 rounded-xl p-4 flex flex-col min-h-[300px] lg:min-h-0 shadow-lg shadow-gray-950/50">
+    <h3 className="text-white font-medium mb-4 shrink-0">
+     Tendencia de Paradas
+    </h3>
+    <div className="flex-1 min-h-0">
+     <AreaChartWidget
+      data={data.charts.tendenciaParadas}
+      xAxisKey="name"
+      yAxisKey="value"
+      showLegend={false}
+     />
+    </div>
+   </div>
+
+   {/* Bottom Left Chart */}
+   <div className="md:col-span-2 bg-gray-900 border border-gray-700 rounded-xl p-4 flex flex-col min-h-[300px] lg:min-h-0 shadow-lg shadow-gray-950/50">
+    <h3 className="text-white font-medium mb-4 shrink-0">Paradas por Etapa</h3>
     <div className="flex-1 min-h-0">
      <BarChartWidget
-      data={data.charts.calidadPorTurno}
+      data={data.charts.paradasPorEtapa}
+      xAxisKey="name"
+      yAxisKey="value"
+      showLegend={false}
+     />
+    </div>
+   </div>
+
+   {/* Bottom Right Chart */}
+   <div className="md:col-span-2 bg-gray-900 border border-gray-700 rounded-xl p-4 flex flex-col min-h-[300px] lg:min-h-0 shadow-lg shadow-gray-950/50">
+    <h3 className="text-white font-medium mb-4 shrink-0">
+     Disponibilidad por Turno
+    </h3>
+    <div className="flex-1 min-h-0">
+     <BarChartWidget
+      data={data.charts.paradasPorTurno.map((t) => ({
+       name: t.name,
+       value: t.disponibilidad,
+      }))}
       xAxisKey="name"
       yAxisKey="value"
       showLegend={false}
@@ -112,63 +172,16 @@ function DashboardContent() {
      />
     </div>
    </div>
-
-   {/* Top Right */}
-   <div className="md:col-span-2 bg-gray-900 border border-gray-700 rounded-xl p-4 flex flex-col min-h-[300px] lg:min-h-0 shadow-lg shadow-gray-950/50">
-    <h3 className="text-white font-medium mb-4 shrink-0">
-     Calidad por Producto
-    </h3>
-    <div className="flex-1 min-h-0">
-     <BarChartWidget
-      data={data.charts.calidadPorProducto}
-      xAxisKey="name"
-      yAxisKey="value"
-      showLegend={false}
-     />
-    </div>
-   </div>
-
-   {/* Bottom Left */}
-   <div className="md:col-span-2 bg-gray-900 border border-gray-700 rounded-xl p-4 flex flex-col min-h-[300px] lg:min-h-0 shadow-lg shadow-gray-950/50">
-    <h3 className="text-white font-medium mb-4 shrink-0">
-     Rendimiento por Antigüedad
-    </h3>
-    <div className="flex-1 min-h-0">
-     <BarChartWidget
-      data={data.charts.rendimientoPorAntiguedad}
-      xAxisKey="name"
-      yAxisKey="value"
-      showLegend={false}
-      colors={["#8b5cf6"]}
-     />
-    </div>
-   </div>
-
-   {/* Bottom Right */}
-   <div className="md:col-span-2 bg-gray-900 border border-gray-700 rounded-xl p-4 flex flex-col min-h-[300px] lg:min-h-0 shadow-lg shadow-gray-950/50">
-    <h3 className="text-white font-medium mb-4 shrink-0">Top Empleados</h3>
-    <div className="flex-1 min-h-0 overflow-hidden">
-     <TableWidget
-      data={data.tables.topEmpleados}
-      columns={[
-       { key: "NombreCompleto", label: "Empleado" },
-       { key: "AntiguedadAnios", label: "Años", align: "center" },
-       { key: "ProductosCorrectos", label: "Productos", align: "right" },
-       { key: "PromedioProductos", label: "Prom", align: "right" },
-      ]}
-     />
-    </div>
-   </div>
   </div>
  );
 }
 
-export default function CalidadDashboard() {
+export default function ParadasDashboard() {
  return (
   <FilterProvider>
    <div className="h-full flex flex-col p-3 lg:p-6 gap-4 overflow-y-auto lg:overflow-hidden">
     <div className="flex-none flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-     <DashboardHeader title="Dashboard de Calidad" icon={HiCheckBadge} />
+     <DashboardHeader title="Dashboard de Paradas" icon={HiClock} />
      <FilterBar showYear showMonth />
     </div>
     <DashboardContent />

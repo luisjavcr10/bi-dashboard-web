@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
 import {
  HiBars3,
  HiXMark,
@@ -11,6 +12,9 @@ import {
  HiChartBar,
  HiClock,
  HiCheckBadge,
+ HiArrowRightOnRectangle,
+ HiUsers,
+ HiShieldCheck,
 } from "react-icons/hi2";
 import { clsx } from "clsx";
 
@@ -32,7 +36,15 @@ const MENU_ITEMS = [
  },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+ user?: {
+  name?: string | null;
+  email?: string | null;
+  role?: string;
+ };
+}
+
+export default function Sidebar({ user }: SidebarProps) {
  const [isCollapsed, setIsCollapsed] = useState(false);
  const [isMobileOpen, setIsMobileOpen] = useState(false);
  const pathname = usePathname();
@@ -77,16 +89,17 @@ export default function Sidebar() {
    >
     {/* Header (Logo + Toggle) */}
     <div className="flex items-center justify-between p-4 h-16 border-b border-gray-800 shrink-0">
-     <div
+     <Link
+      href="/"
       className={clsx(
-       "flex items-center overflow-hidden transition-all duration-300",
+       "flex items-center overflow-hidden transition-all duration-300 hover:opacity-80",
        isCollapsed ? "lg:w-0 lg:opacity-0" : "w-auto opacity-100"
       )}
      >
       <h1 className="font-bold text-white text-xl whitespace-nowrap">
        PERU SAC
       </h1>
-     </div>
+     </Link>
 
      {/* Mobile Close Button */}
      <button
@@ -155,7 +168,6 @@ export default function Sidebar() {
           {item.name}
          </span>
 
-         {/* Tooltip for collapsed mode */}
          {isCollapsed && (
           <div className="absolute left-full top-1/2 -translate-y-1/2 ml-4 px-2 py-1 bg-gray-900 border border-gray-700 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 shadow-xl">
            {item.name}
@@ -164,29 +176,110 @@ export default function Sidebar() {
         </Link>
        );
       })}
+
+      {/* Admin Section */}
+      {user?.role === "ADMIN" && (
+       <>
+        <div className="px-2 mt-6 mb-2">
+         {!isCollapsed ? (
+          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider animate-fadeIn">
+           Administración
+          </span>
+         ) : (
+          <div className="h-px bg-gray-800 w-full my-2" />
+         )}
+        </div>
+        {[
+         { name: "Usuarios", path: "/dashboard/admin/users", icon: HiUsers },
+         { name: "Roles", path: "/dashboard/admin/roles", icon: HiShieldCheck },
+        ].map((item) => {
+         const active = pathname === item.path;
+         return (
+          <Link
+           key={item.path}
+           href={item.path}
+           className={clsx(
+            "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group relative",
+            active
+             ? "bg-purple-600 text-white shadow-md shadow-purple-900/20"
+             : "text-gray-400 hover:bg-gray-900 hover:text-white",
+            isCollapsed ? "justify-center" : ""
+           )}
+           title={isCollapsed ? item.name : ""}
+          >
+           <item.icon
+            className={clsx(
+             "flex-shrink-0 transition-transform duration-200",
+             isCollapsed ? "w-6 h-6" : "w-5 h-5",
+             active && "scale-110"
+            )}
+           />
+           <span
+            className={clsx(
+             "font-medium whitespace-nowrap transition-all duration-300 origin-left",
+             isCollapsed ? "w-0 opacity-0 hidden" : "w-auto opacity-100 block"
+            )}
+           >
+            {item.name}
+           </span>
+           {isCollapsed && (
+            <div className="absolute left-full top-1/2 -translate-y-1/2 ml-4 px-2 py-1 bg-gray-900 border border-gray-700 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 shadow-xl">
+             {item.name}
+            </div>
+           )}
+          </Link>
+         );
+        })}
+       </>
+      )}
      </nav>
     </div>
 
     {/* User Info (Footer) */}
-    <div
-     className={clsx(
-      "p-4 border-t border-gray-800 shrink-0 transition-all duration-300",
-      isCollapsed ? "items-center justify-center flex" : ""
-     )}
-    >
-     <div className="flex items-center gap-3">
-      <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold shrink-0">
-       AD
+    <div className="p-4 border-t border-gray-800 shrink-0">
+     <div
+      className={clsx(
+       "flex items-center gap-3 transition-all duration-300",
+       isCollapsed ? "justify-center" : ""
+      )}
+     >
+      <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-lg shadow-indigo-900/20 ring-2 ring-gray-800">
+       {user?.name?.[0] || "U"}
       </div>
       {!isCollapsed && (
-       <div className="flex flex-col overflow-hidden">
-        <span className="text-sm font-medium text-white truncate">Admin</span>
-        <span className="text-xs text-gray-500 truncate">
-         admin@perusac.com
+       <div className="flex flex-col overflow-hidden min-w-0 flex-1">
+        <span className="text-sm font-medium text-white truncate">
+         {user?.name || "Usuario"}
+        </span>
+        <span
+         className="text-xs text-gray-500 truncate"
+         title={user?.email || undefined}
+        >
+         {user?.email || "sin-email@perusac.com"}
         </span>
        </div>
       )}
+
+      {!isCollapsed && (
+       <button
+        onClick={() => signOut()}
+        className="text-gray-400 hover:text-red-400 transition-colors p-1 rounded-lg hover:bg-red-400/10 ml-1"
+        title="Cerrar Sesión"
+       >
+        <HiArrowRightOnRectangle className="w-5 h-5" />
+       </button>
+      )}
      </div>
+
+     {isCollapsed && (
+      <button
+       onClick={() => signOut()}
+       className="mt-4 w-full flex justify-center text-gray-400 hover:text-red-400 transition-colors"
+       title="Cerrar Sesión"
+      >
+       <HiArrowRightOnRectangle className="w-5 h-5" />
+      </button>
+     )}
     </div>
    </aside>
   </>
