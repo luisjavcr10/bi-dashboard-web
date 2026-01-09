@@ -203,7 +203,7 @@ export default function ProduccionDashboard() {
    <div className="h-full flex flex-col p-3 lg:p-6 gap-4 overflow-y-auto lg:overflow-hidden">
     <div className="flex-none flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
      <DashboardHeader title="Dashboard de Producción" icon={HiChartBar} />
-     <FilterBar showYear showMonth showDay showTurno />
+     <FilterBar showYear showMonth showDay />
     </div>
     <DashboardContent />
    </div>

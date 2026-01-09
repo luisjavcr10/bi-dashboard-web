@@ -43,7 +43,6 @@ interface Filters {
   mes?: string;
   dia?: string;
   planta?: string;
-  turno?: string;
 }
 
 function buildWhereClause(filters?: Filters) {
@@ -66,10 +65,6 @@ function buildWhereClause(filters?: Filters) {
     whereClause += " AND LOWER(o.Planta) = LOWER(@planta)";
     params.planta = filters.planta;
   }
-  if (filters?.turno) {
-    whereClause += " AND LOWER(tu.Turno) = LOWER(@turno)";
-    params.turno = filters.turno;
-  }
 
   return { whereClause, params };
 }
@@ -84,7 +79,6 @@ export async function getCalidadResumen(filters?: Filters): Promise<CalidadResum
     FROM ${table("HechoCalidadEmpaque")} h
     JOIN ${table("DimTiempo")} t ON h.TiempoKey = t.TiempoKey
     JOIN ${table("DimOrganizacion")} o ON h.OrganizacionKey = o.OrganizacionKey
-    JOIN ${table("DimTurno")} tu ON h.TurnoKey = tu.TurnoKey
     ${whereClause}
   `;
 
@@ -127,7 +121,6 @@ export async function getCalidadPorProducto(filters?: Filters): Promise<CalidadP
     JOIN ${table("DimProducto")} p ON h.ProductoKey = p.ProductoKey
     JOIN ${table("DimTiempo")} t ON h.TiempoKey = t.TiempoKey
     JOIN ${table("DimOrganizacion")} o ON h.OrganizacionKey = o.OrganizacionKey
-    JOIN ${table("DimTurno")} tu ON h.TurnoKey = tu.TurnoKey
     ${whereClause}
     GROUP BY p.Producto, p.Especie
     ORDER BY ProductosCorrectos DESC
@@ -150,7 +143,6 @@ export async function getTopEmpleados(limit: number = 10, filters?: Filters): Pr
     JOIN ${table("DimEmpleado")} e ON h.EmpleadoKey = e.EmpleadoKey
     JOIN ${table("DimTiempo")} t ON h.TiempoKey = t.TiempoKey
     JOIN ${table("DimOrganizacion")} o ON h.OrganizacionKey = o.OrganizacionKey
-    JOIN ${table("DimTurno")} tu ON h.TurnoKey = tu.TurnoKey
     ${whereClause}
     GROUP BY e.NombreCompleto
     ORDER BY ProductosCorrectos DESC
@@ -177,7 +169,6 @@ export async function getRendimientoPorAntiguedad(filters?: Filters): Promise<Re
     JOIN ${table("DimEmpleado")} e ON h.EmpleadoKey = e.EmpleadoKey
     JOIN ${table("DimTiempo")} t ON h.TiempoKey = t.TiempoKey
     JOIN ${table("DimOrganizacion")} o ON h.OrganizacionKey = o.OrganizacionKey
-    JOIN ${table("DimTurno")} tu ON h.TurnoKey = tu.TurnoKey
     ${whereClause}
     GROUP BY RangoAntiguedad
     ORDER BY PromedioProductos DESC

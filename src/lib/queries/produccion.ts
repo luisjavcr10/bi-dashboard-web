@@ -48,7 +48,6 @@ interface Filters {
   mes?: string;
   dia?: string;
   planta?: string;
-  turno?: string;
 }
 
 function buildWhereClause(filters?: Filters) {
@@ -70,10 +69,6 @@ function buildWhereClause(filters?: Filters) {
   if (filters?.planta) {
     whereClause += " AND LOWER(o.Planta) = LOWER(@planta)";
     params.planta = filters.planta;
-  }
-  if (filters?.turno) {
-    whereClause += " AND LOWER(tu.Turno) = LOWER(@turno)";
-    params.turno = filters.turno;
   }
 
   return { whereClause, params };
@@ -101,7 +96,6 @@ export async function getProduccionResumen(filters?: Filters): Promise<Produccio
     FROM ${table("HechoProduccionMerma")} h
     JOIN ${table("DimTiempo")} t ON h.TiempoKey = t.TiempoKey
     JOIN ${table("DimOrganizacion")} o ON h.OrganizacionKey = o.OrganizacionKey
-    JOIN ${table("DimTurno")} tu ON h.TurnoKey = tu.TurnoKey
     ${whereClause}
   `;
 
@@ -130,7 +124,6 @@ export async function getProduccionPorEspecie(filters?: Filters): Promise<Produc
     JOIN ${table("DimProducto")} p ON h.ProductoKey = p.ProductoKey
     JOIN ${table("DimTiempo")} t ON h.TiempoKey = t.TiempoKey
     JOIN ${table("DimOrganizacion")} o ON h.OrganizacionKey = o.OrganizacionKey
-    JOIN ${table("DimTurno")} tu ON h.TurnoKey = tu.TurnoKey
     ${whereClause}
     GROUP BY p.Especie
     ORDER BY PesoSalida DESC
@@ -150,7 +143,6 @@ export async function getMermaPorTipo(filters?: Filters): Promise<MermaPorTipo[]
     JOIN ${table("DimMermaLean")} m ON h.MermaLeanKey = m.MermaLeanKey
     JOIN ${table("DimTiempo")} t ON h.TiempoKey = t.TiempoKey
     JOIN ${table("DimOrganizacion")} o ON h.OrganizacionKey = o.OrganizacionKey
-    JOIN ${table("DimTurno")} tu ON h.TurnoKey = tu.TurnoKey
     ${whereClause}
     GROUP BY m.NombreMermaLean
     ORDER BY PesoMerma DESC
@@ -171,7 +163,6 @@ export async function getTendenciaMerma(filters?: Filters): Promise<TendenciaMer
     FROM ${table("HechoProduccionMerma")} h
     JOIN ${table("DimTiempo")} t ON h.TiempoKey = t.TiempoKey
     JOIN ${table("DimOrganizacion")} o ON h.OrganizacionKey = o.OrganizacionKey
-    JOIN ${table("DimTurno")} tu ON h.TurnoKey = tu.TurnoKey
     ${whereClause}
     GROUP BY t.Mes, t.Anio
     ORDER BY t.Anio, t.Mes
@@ -193,7 +184,6 @@ export async function getTopProductosMerma(limit: number = 10, filters?: Filters
     JOIN ${table("DimProducto")} p ON h.ProductoKey = p.ProductoKey
     JOIN ${table("DimTiempo")} t ON h.TiempoKey = t.TiempoKey
     JOIN ${table("DimOrganizacion")} o ON h.OrganizacionKey = o.OrganizacionKey
-    JOIN ${table("DimTurno")} tu ON h.TurnoKey = tu.TurnoKey
     ${whereClause}
     GROUP BY p.Producto, p.Especie
     ORDER BY PesoMerma DESC

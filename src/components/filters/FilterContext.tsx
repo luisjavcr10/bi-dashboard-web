@@ -6,7 +6,6 @@ export interface FilterState {
  anio?: number;
  mes?: string;
  planta?: string;
- turno?: string;
  dia?: string;
  especie?: string;
 }

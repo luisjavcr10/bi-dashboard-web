@@ -29,17 +29,11 @@ const DAYS = [
  { value: "Sunday", label: "Domingo" },
 ];
 
-const TURNOS = [
- { value: "Mañana", label: "Mañana" },
- { value: "Tarde", label: "Tarde" },
-];
-
 interface FilterBarProps {
  showYear?: boolean;
  showMonth?: boolean;
  showDay?: boolean;
  showPlanta?: boolean;
- showTurno?: boolean;
  plantas?: string[];
 }
 
@@ -48,7 +42,6 @@ export default function FilterBar({
  showMonth = true,
  showDay = false,
  showPlanta = false,
- showTurno = false,
  plantas = [],
 }: FilterBarProps) {
  const { clearFilters } = useFilters();
@@ -73,14 +66,6 @@ export default function FilterBar({
    )}
    {showDay && (
     <SelectFilter id="filter-dia" label="Día" options={DAYS} filterKey="dia" />
-   )}
-   {showTurno && (
-    <SelectFilter
-     id="filter-turno"
-     label="Turno"
-     options={TURNOS}
-     filterKey="turno"
-    />
    )}
    {showPlanta && plantas.length > 0 && (
     <SelectFilter
