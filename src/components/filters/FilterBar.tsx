@@ -5,24 +5,29 @@ import SelectFilter from "./SelectFilter";
 
 const YEARS = [2024, 2025, 2026].map((y) => ({ value: y, label: String(y) }));
 const MONTHS = [
- { value: "Enero", label: "Enero" },
- { value: "Febrero", label: "Febrero" },
- { value: "Marzo", label: "Marzo" },
- { value: "Abril", label: "Abril" },
- { value: "Mayo", label: "Mayo" },
- { value: "Junio", label: "Junio" },
- { value: "Julio", label: "Julio" },
- { value: "Agosto", label: "Agosto" },
- { value: "Septiembre", label: "Septiembre" },
- { value: "Octubre", label: "Octubre" },
- { value: "Noviembre", label: "Noviembre" },
- { value: "Diciembre", label: "Diciembre" },
+ { value: "January", label: "Enero" },
+ { value: "February", label: "Febrero" },
+ { value: "March", label: "Marzo" },
+ { value: "April", label: "Abril" },
+ { value: "May", label: "Mayo" },
+ { value: "June", label: "Junio" },
+ { value: "July", label: "Julio" },
+ { value: "August", label: "Agosto" },
+ { value: "September", label: "Septiembre" },
+ { value: "October", label: "Octubre" },
+ { value: "November", label: "Noviembre" },
+ { value: "December", label: "Diciembre" },
 ];
 
-const DAYS = Array.from({ length: 31 }, (_, i) => ({
- value: i + 1,
- label: String(i + 1),
-}));
+const DAYS = [
+ { value: "Monday", label: "Lunes" },
+ { value: "Tuesday", label: "Martes" },
+ { value: "Wednesday", label: "Miércoles" },
+ { value: "Thursday", label: "Jueves" },
+ { value: "Friday", label: "Viernes" },
+ { value: "Saturday", label: "Sábado" },
+ { value: "Sunday", label: "Domingo" },
+];
 
 interface FilterBarProps {
  showYear?: boolean;

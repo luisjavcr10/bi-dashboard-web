@@ -172,7 +172,7 @@ export default function CalidadDashboard() {
    <div className="h-full flex flex-col p-3 lg:p-6 gap-4 overflow-y-auto lg:overflow-hidden">
     <div className="flex-none flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
      <DashboardHeader title="Dashboard de Calidad" icon={HiCheckBadge} />
-     <FilterBar showYear showMonth />
+     <FilterBar showYear showMonth showDay />
     </div>
     <DashboardContent />
    </div>

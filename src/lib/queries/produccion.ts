@@ -41,18 +41,39 @@ export interface TopProductosMerma {
   PorcentajeMerma: number;
 }
 
-export async function getProduccionResumen(filters?: {
+interface Filters {
   anio?: number;
   mes?: string;
-  dia?: number;
+  dia?: string;
   planta?: string;
-}): Promise<ProduccionResumen> {
-  let whereClause = "WHERE 1=1";
+}
 
-  if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
-  if (filters?.mes) whereClause += ` AND LOWER(t.Mes) = LOWER('${filters.mes}')`;
-  if (filters?.dia) whereClause += ` AND t.Dia = ${filters.dia}`;
-  if (filters?.planta) whereClause += ` AND LOWER(o.Planta) = LOWER('${filters.planta}')`;
+function buildWhereClause(filters?: Filters) {
+  let whereClause = "WHERE 1=1";
+  const params: Record<string, string | number> = {};
+
+  if (filters?.anio) {
+    whereClause += " AND t.Anio = @anio";
+    params.anio = filters.anio;
+  }
+  if (filters?.mes) {
+    whereClause += " AND LOWER(t.Mes) = LOWER(@mes)";
+    params.mes = filters.mes;
+  }
+  if (filters?.dia) {
+    whereClause += " AND LOWER(t.Dia) = LOWER(@dia)";
+    params.dia = filters.dia;
+  }
+  if (filters?.planta) {
+    whereClause += " AND LOWER(o.Planta) = LOWER(@planta)";
+    params.planta = filters.planta;
+  }
+
+  return { whereClause, params };
+}
+
+export async function getProduccionResumen(filters?: Filters): Promise<ProduccionResumen> {
+  const { whereClause, params } = buildWhereClause(filters);
 
   const query = `
     SELECT 
@@ -71,7 +92,7 @@ export async function getProduccionResumen(filters?: {
     ${whereClause}
   `;
 
-  const rows = await runQuery<ProduccionResumen>(query);
+  const rows = await runQuery<ProduccionResumen>(query, params);
   return rows[0] || {
     totalPesoIngresado: 0,
     totalPesoSalida: 0,
@@ -81,18 +102,8 @@ export async function getProduccionResumen(filters?: {
   };
 }
 
-export async function getProduccionPorEspecie(filters?: {
-  anio?: number;
-  mes?: string;
-  dia?: number;
-  planta?: string;
-}): Promise<ProduccionPorEspecie[]> {
-  let whereClause = "WHERE 1=1";
-
-  if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
-  if (filters?.mes) whereClause += ` AND LOWER(t.Mes) = LOWER('${filters.mes}')`;
-  if (filters?.dia) whereClause += ` AND t.Dia = ${filters.dia}`;
-  if (filters?.planta) whereClause += ` AND LOWER(o.Planta) = LOWER('${filters.planta}')`;
+export async function getProduccionPorEspecie(filters?: Filters): Promise<ProduccionPorEspecie[]> {
+  const { whereClause, params } = buildWhereClause(filters);
 
   const query = `
     SELECT 
@@ -109,19 +120,11 @@ export async function getProduccionPorEspecie(filters?: {
     ORDER BY PesoSalida DESC
   `;
 
-  return runQuery<ProduccionPorEspecie>(query);
+  return runQuery<ProduccionPorEspecie>(query, params);
 }
 
-export async function getMermaPorTipo(filters?: {
-  anio?: number;
-  mes?: string;
-  dia?: number;
-}): Promise<MermaPorTipo[]> {
-  let whereClause = "WHERE 1=1";
-
-  if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
-  if (filters?.mes) whereClause += ` AND LOWER(t.Mes) = LOWER('${filters.mes}')`;
-  if (filters?.dia) whereClause += ` AND t.Dia = ${filters.dia}`;
+export async function getMermaPorTipo(filters?: Filters): Promise<MermaPorTipo[]> {
+  const { whereClause, params } = buildWhereClause(filters);
 
   const query = `
     SELECT 
@@ -130,24 +133,17 @@ export async function getMermaPorTipo(filters?: {
     FROM ${table("HechoProduccionMerma")} h
     JOIN ${table("DimMermaLean")} m ON h.MermaLeanKey = m.MermaLeanKey
     JOIN ${table("DimTiempo")} t ON h.TiempoKey = t.TiempoKey
+    JOIN ${table("DimOrganizacion")} o ON h.OrganizacionKey = o.OrganizacionKey
     ${whereClause}
     GROUP BY m.NombreMermaLean
     ORDER BY PesoMerma DESC
   `;
 
-  return runQuery<MermaPorTipo>(query);
+  return runQuery<MermaPorTipo>(query, params);
 }
 
-export async function getTendenciaMerma(filters?: {
-  anio?: number;
-  mes?: string;
-  dia?: number;
-}): Promise<TendenciaMerma[]> {
-  let whereClause = "WHERE 1=1";
-
-  if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
-  if (filters?.mes) whereClause += ` AND LOWER(t.Mes) = LOWER('${filters.mes}')`;
-  if (filters?.dia) whereClause += ` AND t.Dia = ${filters.dia}`;
+export async function getTendenciaMerma(filters?: Filters): Promise<TendenciaMerma[]> {
+  const { whereClause, params } = buildWhereClause(filters);
 
   const query = `
     SELECT 
@@ -157,15 +153,18 @@ export async function getTendenciaMerma(filters?: {
       ROUND(SUM(h.PesoMerma) / NULLIF(SUM(h.PesoIngresado), 0) * 100, 2) as PorcentajeMerma
     FROM ${table("HechoProduccionMerma")} h
     JOIN ${table("DimTiempo")} t ON h.TiempoKey = t.TiempoKey
+    JOIN ${table("DimOrganizacion")} o ON h.OrganizacionKey = o.OrganizacionKey
     ${whereClause}
     GROUP BY t.Mes, t.Anio
     ORDER BY t.Anio, t.Mes
   `;
 
-  return runQuery<TendenciaMerma>(query);
+  return runQuery<TendenciaMerma>(query, params);
 }
 
-export async function getTopProductosMerma(limit: number = 10): Promise<TopProductosMerma[]> {
+export async function getTopProductosMerma(limit: number = 10, filters?: Filters): Promise<TopProductosMerma[]> {
+  const { whereClause, params } = buildWhereClause(filters);
+
   const query = `
     SELECT 
       p.Producto,
@@ -174,10 +173,13 @@ export async function getTopProductosMerma(limit: number = 10): Promise<TopProdu
       ROUND(SUM(h.PesoMerma) / NULLIF(SUM(h.PesoIngresado), 0) * 100, 2) as PorcentajeMerma
     FROM ${table("HechoProduccionMerma")} h
     JOIN ${table("DimProducto")} p ON h.ProductoKey = p.ProductoKey
+    JOIN ${table("DimTiempo")} t ON h.TiempoKey = t.TiempoKey
+    JOIN ${table("DimOrganizacion")} o ON h.OrganizacionKey = o.OrganizacionKey
+    ${whereClause}
     GROUP BY p.Producto, p.Especie
     ORDER BY PesoMerma DESC
     LIMIT ${limit}
   `;
 
-  return runQuery<TopProductosMerma>(query);
+  return runQuery<TopProductosMerma>(query, params);
 }

@@ -7,7 +7,7 @@ export interface FilterState {
  mes?: string;
  planta?: string;
  turno?: string;
- dia?: number;
+ dia?: string;
  especie?: string;
 }
 

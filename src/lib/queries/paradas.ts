@@ -42,16 +42,39 @@ export interface ParadasPorTurno {
   Disponibilidad: number;
 }
 
-export async function getParadasResumen(filters?: {
+interface Filters {
   anio?: number;
   mes?: string;
+  dia?: string;
   planta?: string;
-}): Promise<ParadasResumen> {
-  let whereClause = "WHERE 1=1";
+}
 
-  if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
-  if (filters?.mes) whereClause += ` AND t.Mes = '${filters.mes}'`;
-  if (filters?.planta) whereClause += ` AND o.Planta = '${filters.planta}'`;
+function buildWhereClause(filters?: Filters) {
+  let whereClause = "WHERE 1=1";
+  const params: Record<string, string | number> = {};
+
+  if (filters?.anio) {
+    whereClause += " AND t.Anio = @anio";
+    params.anio = filters.anio;
+  }
+  if (filters?.mes) {
+    whereClause += " AND LOWER(t.Mes) = LOWER(@mes)";
+    params.mes = filters.mes;
+  }
+  if (filters?.dia) {
+    whereClause += " AND LOWER(t.Dia) = LOWER(@dia)";
+    params.dia = filters.dia;
+  }
+  if (filters?.planta) {
+    whereClause += " AND LOWER(o.Planta) = LOWER(@planta)";
+    params.planta = filters.planta;
+  }
+
+  return { whereClause, params };
+}
+
+export async function getParadasResumen(filters?: Filters): Promise<ParadasResumen> {
+  const { whereClause, params } = buildWhereClause(filters);
 
   const query = `
     SELECT 
@@ -69,7 +92,7 @@ export async function getParadasResumen(filters?: {
     ${whereClause}
   `;
 
-  const rows = await runQuery<ParadasResumen>(query);
+  const rows = await runQuery<ParadasResumen>(query, params);
   return rows[0] || {
     totalParadas: 0,
     totalDuracionMinutos: 0,
@@ -78,14 +101,8 @@ export async function getParadasResumen(filters?: {
   };
 }
 
-export async function getParadasPorCausa(filters?: {
-  anio?: number;
-  planta?: string;
-}): Promise<ParadasPorCausa[]> {
-  let whereClause = "WHERE 1=1";
-
-  if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
-  if (filters?.planta) whereClause += ` AND o.Planta = '${filters.planta}'`;
+export async function getParadasPorCausa(filters?: Filters): Promise<ParadasPorCausa[]> {
+  const { whereClause, params } = buildWhereClause(filters);
 
   const query = `
     WITH totales AS (
@@ -109,15 +126,11 @@ export async function getParadasPorCausa(filters?: {
     ORDER BY DuracionTotal DESC
   `;
 
-  return runQuery<ParadasPorCausa>(query);
+  return runQuery<ParadasPorCausa>(query, params);
 }
 
-export async function getTendenciaParadas(filters?: {
-  anio?: number;
-}): Promise<TendenciaParadas[]> {
-  let whereClause = "WHERE 1=1";
-
-  if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
+export async function getTendenciaParadas(filters?: Filters): Promise<TendenciaParadas[]> {
+  const { whereClause, params } = buildWhereClause(filters);
 
   const query = `
     SELECT 
@@ -127,20 +140,17 @@ export async function getTendenciaParadas(filters?: {
       SUM(h.TotalDuracionParada) as DuracionTotal
     FROM ${table("HechoParadas")} h
     JOIN ${table("DimTiempo")} t ON h.TiempoKey = t.TiempoKey
+    JOIN ${table("DimOrganizacion")} o ON h.OrganizacionKey = o.OrganizacionKey
     ${whereClause}
     GROUP BY t.Mes, t.Anio
     ORDER BY t.Anio, t.Mes
   `;
 
-  return runQuery<TendenciaParadas>(query);
+  return runQuery<TendenciaParadas>(query, params);
 }
 
-export async function getParadasPorEtapa(filters?: {
-  anio?: number;
-}): Promise<ParadasPorEtapa[]> {
-  let whereClause = "WHERE 1=1";
-
-  if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
+export async function getParadasPorEtapa(filters?: Filters): Promise<ParadasPorEtapa[]> {
+  const { whereClause, params } = buildWhereClause(filters);
 
   const query = `
     SELECT 
@@ -151,20 +161,17 @@ export async function getParadasPorEtapa(filters?: {
     FROM ${table("HechoParadas")} h
     JOIN ${table("DimProduccion")} p ON h.ProduccionKey = p.ProduccionKey
     JOIN ${table("DimTiempo")} t ON h.TiempoKey = t.TiempoKey
+    JOIN ${table("DimOrganizacion")} o ON h.OrganizacionKey = o.OrganizacionKey
     ${whereClause}
     GROUP BY p.Etapa, p.Tipo
     ORDER BY DuracionTotal DESC
   `;
 
-  return runQuery<ParadasPorEtapa>(query);
+  return runQuery<ParadasPorEtapa>(query, params);
 }
 
-export async function getParadasPorTurno(filters?: {
-  anio?: number;
-}): Promise<ParadasPorTurno[]> {
-  let whereClause = "WHERE 1=1";
-
-  if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
+export async function getParadasPorTurno(filters?: Filters): Promise<ParadasPorTurno[]> {
+  const { whereClause, params } = buildWhereClause(filters);
 
   const query = `
     SELECT 
@@ -175,10 +182,11 @@ export async function getParadasPorTurno(filters?: {
     FROM ${table("HechoParadas")} h
     JOIN ${table("DimTurno")} tu ON h.TurnoKey = tu.TurnoKey
     JOIN ${table("DimTiempo")} t ON h.TiempoKey = t.TiempoKey
+    JOIN ${table("DimOrganizacion")} o ON h.OrganizacionKey = o.OrganizacionKey
     ${whereClause}
     GROUP BY tu.Turno
     ORDER BY Disponibilidad DESC
   `;
 
-  return runQuery<ParadasPorTurno>(query);
+  return runQuery<ParadasPorTurno>(query, params);
 }

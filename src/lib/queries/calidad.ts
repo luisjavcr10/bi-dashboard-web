@@ -38,16 +38,39 @@ export interface RendimientoPorAntiguedad {
   TotalEmpleados: number;
 }
 
-export async function getCalidadResumen(filters?: {
+interface Filters {
   anio?: number;
   mes?: string;
+  dia?: string;
   planta?: string;
-}): Promise<CalidadResumen> {
-  let whereClause = "WHERE 1=1";
+}
 
-  if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
-  if (filters?.mes) whereClause += ` AND t.Mes = '${filters.mes}'`;
-  if (filters?.planta) whereClause += ` AND o.Planta = '${filters.planta}'`;
+function buildWhereClause(filters?: Filters) {
+  let whereClause = "WHERE 1=1";
+  const params: Record<string, string | number> = {};
+
+  if (filters?.anio) {
+    whereClause += " AND t.Anio = @anio";
+    params.anio = filters.anio;
+  }
+  if (filters?.mes) {
+    whereClause += " AND LOWER(t.Mes) = LOWER(@mes)";
+    params.mes = filters.mes;
+  }
+  if (filters?.dia) {
+    whereClause += " AND LOWER(t.Dia) = LOWER(@dia)";
+    params.dia = filters.dia;
+  }
+  if (filters?.planta) {
+    whereClause += " AND LOWER(o.Planta) = LOWER(@planta)";
+    params.planta = filters.planta;
+  }
+
+  return { whereClause, params };
+}
+
+export async function getCalidadResumen(filters?: Filters): Promise<CalidadResumen> {
+  const { whereClause, params } = buildWhereClause(filters);
 
   const query = `
     SELECT 
@@ -59,21 +82,15 @@ export async function getCalidadResumen(filters?: {
     ${whereClause}
   `;
 
-  const rows = await runQuery<CalidadResumen>(query);
+  const rows = await runQuery<CalidadResumen>(query, params);
   return rows[0] || {
     totalProductosCorrectos: 0,
     totalProcesos: 0,
   };
 }
 
-export async function getCalidadPorTurno(filters?: {
-  anio?: number;
-  planta?: string;
-}): Promise<CalidadPorTurno[]> {
-  let whereClause = "WHERE 1=1";
-
-  if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
-  if (filters?.planta) whereClause += ` AND o.Planta = '${filters.planta}'`;
+export async function getCalidadPorTurno(filters?: Filters): Promise<CalidadPorTurno[]> {
+  const { whereClause, params } = buildWhereClause(filters);
 
   const query = `
     SELECT 
@@ -89,15 +106,11 @@ export async function getCalidadPorTurno(filters?: {
     ORDER BY ProductosCorrectos DESC
   `;
 
-  return runQuery<CalidadPorTurno>(query);
+  return runQuery<CalidadPorTurno>(query, params);
 }
 
-export async function getCalidadPorProducto(filters?: {
-  anio?: number;
-}): Promise<CalidadPorProducto[]> {
-  let whereClause = "WHERE 1=1";
-
-  if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
+export async function getCalidadPorProducto(filters?: Filters): Promise<CalidadPorProducto[]> {
+  const { whereClause, params } = buildWhereClause(filters);
 
   const query = `
     SELECT 
@@ -107,20 +120,17 @@ export async function getCalidadPorProducto(filters?: {
     FROM ${table("HechoCalidadEmpaque")} h
     JOIN ${table("DimProducto")} p ON h.ProductoKey = p.ProductoKey
     JOIN ${table("DimTiempo")} t ON h.TiempoKey = t.TiempoKey
+    JOIN ${table("DimOrganizacion")} o ON h.OrganizacionKey = o.OrganizacionKey
     ${whereClause}
     GROUP BY p.Producto, p.Especie
     ORDER BY ProductosCorrectos DESC
   `;
 
-  return runQuery<CalidadPorProducto>(query);
+  return runQuery<CalidadPorProducto>(query, params);
 }
 
-export async function getTopEmpleados(limit: number = 10, filters?: {
-  anio?: number;
-}): Promise<TopEmpleados[]> {
-  let whereClause = "WHERE 1=1";
-
-  if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
+export async function getTopEmpleados(limit: number = 10, filters?: Filters): Promise<TopEmpleados[]> {
+  const { whereClause, params } = buildWhereClause(filters);
 
   const query = `
     SELECT 
@@ -132,21 +142,18 @@ export async function getTopEmpleados(limit: number = 10, filters?: {
     FROM ${table("HechoCalidadEmpaque")} h
     JOIN ${table("DimEmpleado")} e ON h.EmpleadoKey = e.EmpleadoKey
     JOIN ${table("DimTiempo")} t ON h.TiempoKey = t.TiempoKey
+    JOIN ${table("DimOrganizacion")} o ON h.OrganizacionKey = o.OrganizacionKey
     ${whereClause}
     GROUP BY e.NombreCompleto, e.AntiguedadAnios
     ORDER BY ProductosCorrectos DESC
     LIMIT ${limit}
   `;
 
-  return runQuery<TopEmpleados>(query);
+  return runQuery<TopEmpleados>(query, params);
 }
 
-export async function getRendimientoPorAntiguedad(filters?: {
-  anio?: number;
-}): Promise<RendimientoPorAntiguedad[]> {
-  let whereClause = "WHERE 1=1";
-
-  if (filters?.anio) whereClause += ` AND t.Anio = ${filters.anio}`;
+export async function getRendimientoPorAntiguedad(filters?: Filters): Promise<RendimientoPorAntiguedad[]> {
+  const { whereClause, params } = buildWhereClause(filters);
 
   const query = `
     SELECT 
@@ -161,10 +168,11 @@ export async function getRendimientoPorAntiguedad(filters?: {
     FROM ${table("HechoCalidadEmpaque")} h
     JOIN ${table("DimEmpleado")} e ON h.EmpleadoKey = e.EmpleadoKey
     JOIN ${table("DimTiempo")} t ON h.TiempoKey = t.TiempoKey
+    JOIN ${table("DimOrganizacion")} o ON h.OrganizacionKey = o.OrganizacionKey
     ${whereClause}
     GROUP BY RangoAntiguedad
     ORDER BY PromedioProductos DESC
   `;
 
-  return runQuery<RendimientoPorAntiguedad>(query);
+  return runQuery<RendimientoPorAntiguedad>(query, params);
 }

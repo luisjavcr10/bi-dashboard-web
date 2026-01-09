@@ -55,12 +55,12 @@ export function getBigQueryClient(): BigQuery {
     return bigqueryClient;
 }
 
-export async function runQuery<T = Record<string, unknown>>(query: string): Promise<T[]> {
+export async function runQuery<T = Record<string, unknown>>(query: string, params?: { [key: string]: string | number | boolean | null }): Promise<T[]> {
     const client = getBigQueryClient();
 
     const [rows] = await client.query({
         query,
-        // Location removed to allow BigQuery to detect automatic location or use dataset default
+        params,
     });
 
     return rows as T[];
