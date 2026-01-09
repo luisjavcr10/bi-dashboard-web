@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
         const { searchParams } = new URL(request.url);
         const anio = searchParams.get("anio") ? parseInt(searchParams.get("anio")!) : undefined;
         const mes = searchParams.get("mes") || undefined;
-        const dia = searchParams.get("dia") ? parseInt(searchParams.get("dia")!) : undefined;
+        const dia = searchParams.get("dia") || undefined;
         const planta = searchParams.get("planta") || undefined;
 
         const filters = { anio, mes, dia, planta };
@@ -38,12 +38,14 @@ export async function GET(request: NextRequest) {
                     mermaTotal: resumen.totalPesoMerma,
                     porcentajeMerma: resumen.porcentajeMerma,
                     totalMallas: resumen.totalMallas,
+                    rendimientoPromedio: resumen.rendimientoPromedio,
                 },
                 charts: {
                     produccionPorEspecie: porEspecie.map((p) => ({
                         name: p.Especie,
                         value: p.PesoSalida,
                         merma: p.PesoMerma,
+                        rendimiento: p.Rendimiento,
                     })),
                     mermaPorTipo: mermaPorTipo.map((m) => ({
                         name: m.NombreMermaLean,

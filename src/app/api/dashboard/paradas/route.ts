@@ -36,6 +36,8 @@ export async function GET(request: NextRequest) {
                     disponibilidad: resumen.disponibilidadPorcentaje,
                     totalParadas: resumen.totalParadas,
                     tiempoPerdido: resumen.totalDuracionMinutos,
+                    mtbf: resumen.mtbf,
+                    mttr: resumen.mttr,
                 },
                 charts: {
                     paradasPorCausa: porCausa.map((p) => ({

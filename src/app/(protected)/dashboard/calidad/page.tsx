@@ -15,11 +15,6 @@ interface DashboardData {
  charts: {
   calidadPorTurno: { name: string; value: number; procesos: number }[];
   calidadPorProducto: { name: string; especie: string; value: number }[];
-  rendimientoPorAntiguedad: {
-   name: string;
-   value: number;
-   empleados: number;
-  }[];
  };
  tables: {
   topEmpleados: {
@@ -28,6 +23,12 @@ interface DashboardData {
    ProductosCorrectos: number;
    TotalProcesos: number;
    PromedioProductos: number;
+  }[];
+  oeeEmpleados: {
+   NombreCompleto: string;
+   ProductosCorrectos: number;
+   DuracionTurno: number;
+   OEE: number;
   }[];
  };
 }
@@ -131,18 +132,17 @@ function DashboardContent() {
     </div>
    </div>
 
-   {/* Bottom Left */}
+   {/* Bottom Left: OEE Empleados Table */}
    <div className="md:col-span-2 bg-gray-900 border border-gray-700 rounded-xl p-4 flex flex-col min-h-[300px] lg:min-h-0 shadow-lg shadow-gray-950/50">
-    <h3 className="text-white font-medium mb-4 shrink-0">
-     Rendimiento por Antigüedad
-    </h3>
-    <div className="flex-1 min-h-0">
-     <BarChartWidget
-      data={data.charts.rendimientoPorAntiguedad}
-      xAxisKey="name"
-      yAxisKey="value"
-      showLegend={false}
-      colors={["#8b5cf6"]}
+    <h3 className="text-white font-medium mb-4 shrink-0">OEE de Empleados</h3>
+    <div className="flex-1 min-h-0 overflow-hidden">
+     <TableWidget
+      data={data.tables.oeeEmpleados}
+      columns={[
+       { key: "NombreCompleto", label: "Empleado" },
+       { key: "OEE", label: "OEE %", align: "right" },
+       { key: "ProductosCorrectos", label: "Prod.", align: "right" },
+      ]}
      />
     </div>
    </div>

@@ -19,9 +19,15 @@ interface DashboardData {
   mermaTotal: number;
   porcentajeMerma: number;
   totalMallas: number;
+  rendimientoPromedio: number;
  };
  charts: {
-  produccionPorEspecie: { name: string; value: number; merma: number }[];
+  produccionPorEspecie: {
+   name: string;
+   value: number;
+   merma: number;
+   rendimiento: number;
+  }[];
   mermaPorTipo: { name: string; value: number }[];
   tendenciaMerma: { name: string; value: number; porcentaje: number }[];
  };
@@ -121,6 +127,14 @@ function DashboardContent() {
       title="Total Mallas"
       value={data.kpis.totalMallas}
       format="number"
+      compact
+     />
+    </div>
+    <div className="flex-1 bg-gray-900 border border-gray-700 rounded-xl flex flex-col justify-center shadow-lg shadow-gray-950/50 p-2 min-h-[100px]">
+     <KPIWidget
+      title="Rendimiento"
+      value={data.kpis.rendimientoPromedio}
+      format="percent"
       compact
      />
     </div>

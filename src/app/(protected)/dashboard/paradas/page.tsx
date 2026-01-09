@@ -18,6 +18,8 @@ interface DashboardData {
   disponibilidad: number;
   totalParadas: number;
   tiempoPerdido: number;
+  mtbf: number;
+  mttr: number;
  };
  charts: {
   paradasPorCausa: {
@@ -100,18 +102,39 @@ function DashboardContent() {
      />
     </div>
     <div className="flex-1 bg-gray-900 border border-gray-700 rounded-xl flex flex-col justify-center shadow-lg shadow-gray-950/50 p-2 min-h-[120px]">
+     <div className="flex flex-col gap-2 p-2">
+      <div className="flex justify-between items-center border-b border-gray-800 pb-2">
+       <span className="text-[10px] text-gray-400 uppercase tracking-wide">
+        Total Paradas
+       </span>
+       <span className="text-sm font-bold text-white">
+        {new Intl.NumberFormat("es-MX").format(data.kpis.totalParadas)}
+       </span>
+      </div>
+      <div className="flex justify-between items-center pt-1">
+       <span className="text-[10px] text-gray-400 uppercase tracking-wide">
+        Tiempo Perdido
+       </span>
+       <span className="text-sm font-bold text-white">
+        {new Intl.NumberFormat("es-MX").format(data.kpis.tiempoPerdido)} min
+       </span>
+      </div>
+     </div>
+    </div>
+    <div className="flex-1 bg-gray-900 border border-gray-700 rounded-xl flex flex-col justify-center shadow-lg shadow-gray-950/50 p-2 min-h-[120px]">
      <KPIWidget
-      title="Total Paradas"
-      value={data.kpis.totalParadas}
+      title="MTBF"
+      value={data.kpis.mtbf}
       format="number"
+      suffix=" h"
      />
     </div>
     <div className="flex-1 bg-gray-900 border border-gray-700 rounded-xl flex flex-col justify-center shadow-lg shadow-gray-950/50 p-2 min-h-[120px]">
      <KPIWidget
-      title="Tiempo Perdido"
-      value={data.kpis.tiempoPerdido}
+      title="MTTR"
+      value={data.kpis.mttr}
       format="number"
-      suffix=" min"
+      suffix=" h"
      />
     </div>
    </div>

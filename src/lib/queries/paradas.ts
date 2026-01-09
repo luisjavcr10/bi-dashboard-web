@@ -12,6 +12,8 @@ export interface ParadasResumen {
   totalDuracionMinutos: number;
   totalDuracionTurno: number;
   disponibilidadPorcentaje: number;
+  mtbf: number;
+  mttr: number;
 }
 
 export interface ParadasPorCausa {
@@ -85,7 +87,19 @@ export async function getParadasResumen(filters?: Filters): Promise<ParadasResum
         WHEN SUM(h.DuracionTurno) > 0 
         THEN ROUND((SUM(h.DuracionTurno) - SUM(h.TotalDuracionParada)) / SUM(h.DuracionTurno) * 100, 2)
         ELSE 100 
-      END as disponibilidadPorcentaje
+      END as disponibilidadPorcentaje,
+      -- MTBF = (Total Duration - Downtime) / Number of Stops / 60 (to hours)
+      CASE
+        WHEN SUM(h.NumeroParadas) > 0
+        THEN ROUND(((SUM(h.DuracionTurno) - SUM(h.TotalDuracionParada)) / SUM(h.NumeroParadas)) / 60, 2)
+        ELSE 0
+      END as mtbf,
+      -- MTTR = (Total Downtime / Number of Stops) / 60 (to hours)
+      CASE
+        WHEN SUM(h.NumeroParadas) > 0
+        THEN ROUND((SUM(h.TotalDuracionParada) / SUM(h.NumeroParadas)) / 60, 2)
+        ELSE 0
+      END as mttr
     FROM ${table("HechoParadas")} h
     JOIN ${table("DimTiempo")} t ON h.TiempoKey = t.TiempoKey
     JOIN ${table("DimOrganizacion")} o ON h.OrganizacionKey = o.OrganizacionKey
@@ -98,6 +112,8 @@ export async function getParadasResumen(filters?: Filters): Promise<ParadasResum
     totalDuracionMinutos: 0,
     totalDuracionTurno: 0,
     disponibilidadPorcentaje: 100,
+    mtbf: 0,
+    mttr: 0,
   };
 }
 

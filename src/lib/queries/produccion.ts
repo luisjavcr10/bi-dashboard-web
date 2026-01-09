@@ -13,6 +13,7 @@ export interface ProduccionResumen {
   totalPesoMerma: number;
   porcentajeMerma: number;
   totalMallas: number;
+  rendimientoPromedio: number;
 }
 
 export interface ProduccionPorEspecie {
@@ -20,6 +21,7 @@ export interface ProduccionPorEspecie {
   PesoSalida: number;
   PesoMerma: number;
   PorcentajeMerma: number;
+  Rendimiento: number;
 }
 
 export interface MermaPorTipo {
@@ -81,11 +83,13 @@ export async function getProduccionResumen(filters?: Filters): Promise<Produccio
       COALESCE(SUM(h.PesoSalida), 0) as totalPesoSalida,
       COALESCE(SUM(h.PesoMerma), 0) as totalPesoMerma,
       CASE 
-        WHEN SUM(h.PesoIngresado) > 0 
-        THEN ROUND(SUM(h.PesoMerma) / SUM(h.PesoIngresado) * 100, 2)
-        ELSE 0 
       END as porcentajeMerma,
-      COALESCE(SUM(h.CantidadMallas), 0) as totalMallas
+      COALESCE(SUM(h.CantidadMallas), 0) as totalMallas,
+      CASE 
+        WHEN SUM(h.PesoIngresado) > 0 
+        THEN ROUND(SUM(h.PesoSalida) / SUM(h.PesoIngresado) * 100, 2)
+        ELSE 0 
+      END as rendimientoPromedio
     FROM ${table("HechoProduccionMerma")} h
     JOIN ${table("DimTiempo")} t ON h.TiempoKey = t.TiempoKey
     JOIN ${table("DimOrganizacion")} o ON h.OrganizacionKey = o.OrganizacionKey
@@ -99,6 +103,7 @@ export async function getProduccionResumen(filters?: Filters): Promise<Produccio
     totalPesoMerma: 0,
     porcentajeMerma: 0,
     totalMallas: 0,
+    rendimientoPromedio: 0,
   };
 }
 
@@ -110,7 +115,8 @@ export async function getProduccionPorEspecie(filters?: Filters): Promise<Produc
       p.Especie,
       ROUND(SUM(h.PesoSalida), 2) as PesoSalida,
       ROUND(SUM(h.PesoMerma), 2) as PesoMerma,
-      ROUND(SUM(h.PesoMerma) / NULLIF(SUM(h.PesoIngresado), 0) * 100, 2) as PorcentajeMerma
+      ROUND(SUM(h.PesoMerma) / NULLIF(SUM(h.PesoIngresado), 0) * 100, 2) as PorcentajeMerma,
+      ROUND(SUM(h.PesoSalida) / NULLIF(SUM(h.PesoIngresado), 0) * 100, 2) as Rendimiento
     FROM ${table("HechoProduccionMerma")} h
     JOIN ${table("DimProducto")} p ON h.ProductoKey = p.ProductoKey
     JOIN ${table("DimTiempo")} t ON h.TiempoKey = t.TiempoKey

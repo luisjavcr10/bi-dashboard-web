@@ -7,7 +7,7 @@ import {
     getCalidadPorTurno,
     getCalidadPorProducto,
     getTopEmpleados,
-    getRendimientoPorAntiguedad,
+    getEmployeeOEE,
 } from "@/lib/queries/calidad";
 import type { ApiResponse } from "@/types";
 
@@ -16,16 +16,17 @@ export async function GET(request: NextRequest) {
         const { searchParams } = new URL(request.url);
         const anio = searchParams.get("anio") ? parseInt(searchParams.get("anio")!) : undefined;
         const mes = searchParams.get("mes") || undefined;
+        const dia = searchParams.get("dia") || undefined;
         const planta = searchParams.get("planta") || undefined;
 
-        const filters = { anio, mes, planta };
+        const filters = { anio, mes, dia, planta };
 
-        const [resumen, porTurno, porProducto, topEmpleados, porAntiguedad] = await Promise.all([
+        const [resumen, porTurno, porProducto, topEmpleados, oeeEmpleados] = await Promise.all([
             getCalidadResumen(filters),
             getCalidadPorTurno(filters),
             getCalidadPorProducto(filters),
             getTopEmpleados(10, filters),
-            getRendimientoPorAntiguedad(filters),
+            getEmployeeOEE(filters),
         ]);
 
         const response: ApiResponse = {
@@ -47,14 +48,10 @@ export async function GET(request: NextRequest) {
                         especie: p.Especie,
                         value: p.ProductosCorrectos,
                     })),
-                    rendimientoPorAntiguedad: porAntiguedad.map((r) => ({
-                        name: r.RangoAntiguedad,
-                        value: r.PromedioProductos,
-                        empleados: r.TotalEmpleados,
-                    })),
                 },
                 tables: {
                     topEmpleados: topEmpleados,
+                    oeeEmpleados: oeeEmpleados,
                 },
             },
             timestamp: new Date().toISOString(),
