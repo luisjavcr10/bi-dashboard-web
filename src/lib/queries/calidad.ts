@@ -135,7 +135,7 @@ export async function getTopEmpleados(limit: number = 10, filters?: Filters): Pr
   const query = `
     SELECT 
       e.NombreCompleto,
-      e.AntiguedadAnios,
+      MAX(e.AntiguedadAnios) as AntiguedadAnios,
       SUM(h.ProductosCorrectos) as ProductosCorrectos,
       COUNT(DISTINCT h.idProcesoEmpaque) as TotalProcesos,
       ROUND(SUM(h.ProductosCorrectos) / NULLIF(COUNT(DISTINCT h.idProcesoEmpaque), 0), 2) as PromedioProductos
@@ -144,7 +144,7 @@ export async function getTopEmpleados(limit: number = 10, filters?: Filters): Pr
     JOIN ${table("DimTiempo")} t ON h.TiempoKey = t.TiempoKey
     JOIN ${table("DimOrganizacion")} o ON h.OrganizacionKey = o.OrganizacionKey
     ${whereClause}
-    GROUP BY e.NombreCompleto, e.AntiguedadAnios
+    GROUP BY e.NombreCompleto
     ORDER BY ProductosCorrectos DESC
     LIMIT ${limit}
   `;
