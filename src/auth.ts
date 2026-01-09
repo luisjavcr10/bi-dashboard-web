@@ -93,18 +93,24 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 const password = credentials.password as string;
 
                 const user = await getUserByEmail(email);
+                console.log(`[Auth Debug] Attempting login for: ${email}`);
+                console.log(`[Auth Debug] User found in DB: ${!!user}`);
 
                 if (!user) {
+                    console.log("[Auth Debug] User not found");
                     return null; // User not found
                 }
 
                 if (!user.isActive) {
+                    console.log("[Auth Debug] User is inactive");
                     throw new Error("Usuario inactivo");
                 }
 
                 const passwordsMatch = await bcrypt.compare(password, user.password_hash);
+                console.log(`[Auth Debug] Password match: ${passwordsMatch}`);
 
                 if (!passwordsMatch) {
+                    console.log("[Auth Debug] Password mismatch");
                     return null;
                 }
 
