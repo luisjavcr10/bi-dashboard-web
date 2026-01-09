@@ -13,6 +13,7 @@ import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import { HiClock, HiExclamationCircle } from "react-icons/hi2";
 import EmptyState from "@/components/ui/EmptyState";
 import { useAgentStore } from "@/store/agentStore";
+import ExpandableCard from "@/components/ui/ExpandableCard";
 
 interface DashboardData {
  kpis: {
@@ -144,59 +145,55 @@ function DashboardContent() {
    {/* Columns 2-5: Chart Grid (2x2) */}
 
    {/* Top Left Chart */}
-   <div className="md:col-span-2 bg-gray-900 border border-gray-700 rounded-xl p-4 flex flex-col min-h-[300px] lg:min-h-0 shadow-lg shadow-gray-950/50">
-    <h3 className="text-white font-medium mb-4 shrink-0">Paradas por Causa</h3>
-    <div className="flex-1 min-h-0">
-     <HorizontalBarChart data={data.charts.paradasPorCausa} valueKey="value" />
-    </div>
-   </div>
+   <ExpandableCard
+    title="Paradas por Causa"
+    className="md:col-span-2 min-h-[300px] lg:min-h-0"
+   >
+    <HorizontalBarChart data={data.charts.paradasPorCausa} valueKey="value" />
+   </ExpandableCard>
 
    {/* Top Right Chart */}
-   <div className="md:col-span-2 bg-gray-900 border border-gray-700 rounded-xl p-4 flex flex-col min-h-[300px] lg:min-h-0 shadow-lg shadow-gray-950/50">
-    <h3 className="text-white font-medium mb-4 shrink-0">
-     Tendencia de Paradas
-    </h3>
-    <div className="flex-1 min-h-0">
-     <AreaChartWidget
-      data={data.charts.tendenciaParadas}
-      xAxisKey="name"
-      yAxisKey="value"
-      showLegend={false}
-     />
-    </div>
-   </div>
+   <ExpandableCard
+    title="Tendencia de Paradas"
+    className="md:col-span-2 min-h-[300px] lg:min-h-0"
+   >
+    <AreaChartWidget
+     data={data.charts.tendenciaParadas}
+     xAxisKey="name"
+     yAxisKey="value"
+     showLegend={false}
+    />
+   </ExpandableCard>
 
    {/* Bottom Left Chart */}
-   <div className="md:col-span-2 bg-gray-900 border border-gray-700 rounded-xl p-4 flex flex-col min-h-[300px] lg:min-h-0 shadow-lg shadow-gray-950/50">
-    <h3 className="text-white font-medium mb-4 shrink-0">Paradas por Etapa</h3>
-    <div className="flex-1 min-h-0">
-     <BarChartWidget
-      data={data.charts.paradasPorEtapa}
-      xAxisKey="name"
-      yAxisKey="value"
-      showLegend={false}
-     />
-    </div>
-   </div>
+   <ExpandableCard
+    title="Paradas por Etapa"
+    className="md:col-span-2 min-h-[300px] lg:min-h-0"
+   >
+    <BarChartWidget
+     data={data.charts.paradasPorEtapa}
+     xAxisKey="name"
+     yAxisKey="value"
+     showLegend={false}
+    />
+   </ExpandableCard>
 
    {/* Bottom Right Chart */}
-   <div className="md:col-span-2 bg-gray-900 border border-gray-700 rounded-xl p-4 flex flex-col min-h-[300px] lg:min-h-0 shadow-lg shadow-gray-950/50">
-    <h3 className="text-white font-medium mb-4 shrink-0">
-     Disponibilidad por Turno
-    </h3>
-    <div className="flex-1 min-h-0">
-     <BarChartWidget
-      data={data.charts.paradasPorTurno.map((t) => ({
-       name: t.name,
-       value: t.disponibilidad,
-      }))}
-      xAxisKey="name"
-      yAxisKey="value"
-      showLegend={false}
-      colors={["#10b981"]}
-     />
-    </div>
-   </div>
+   <ExpandableCard
+    title="Disponibilidad por Turno"
+    className="md:col-span-2 min-h-[300px] lg:min-h-0"
+   >
+    <BarChartWidget
+     data={data.charts.paradasPorTurno.map((t) => ({
+      name: t.name,
+      value: t.disponibilidad,
+     }))}
+     xAxisKey="name"
+     yAxisKey="value"
+     showLegend={false}
+     colors={["#10b981"]}
+    />
+   </ExpandableCard>
   </div>
  );
 }

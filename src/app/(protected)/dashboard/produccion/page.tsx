@@ -13,6 +13,7 @@ import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import { HiChartBar, HiExclamationCircle } from "react-icons/hi2";
 import EmptyState from "@/components/ui/EmptyState";
 import { useAgentStore } from "@/store/agentStore";
+import ExpandableCard from "@/components/ui/ExpandableCard";
 
 interface DashboardData {
  kpis: {
@@ -144,58 +145,54 @@ function DashboardContent() {
 
    {/* Grid: 2x2 Charts */}
    {/* Top Left */}
-   <div className="md:col-span-2 bg-gray-900 border border-gray-700 rounded-xl p-4 flex flex-col min-h-[300px] lg:min-h-0 shadow-lg shadow-gray-950/50">
-    <h3 className="text-white font-medium mb-4 shrink-0">
-     Producción por Especie
-    </h3>
-    <div className="flex-1 min-h-0">
-     <BarChartWidget
-      data={data.charts.produccionPorEspecie}
-      xAxisKey="name"
-      yAxisKey="value"
-      showLegend={false}
-     />
-    </div>
-   </div>
+   <ExpandableCard
+    title="Producción por Especie"
+    className="md:col-span-2 min-h-[300px] lg:min-h-0"
+   >
+    <BarChartWidget
+     data={data.charts.produccionPorEspecie}
+     xAxisKey="name"
+     yAxisKey="value"
+     showLegend={false}
+    />
+   </ExpandableCard>
 
    {/* Top Right */}
-   <div className="md:col-span-2 bg-gray-900 border border-gray-700 rounded-xl p-4 flex flex-col min-h-[300px] lg:min-h-0 shadow-lg shadow-gray-950/50">
-    <h3 className="text-white font-medium mb-4 shrink-0">Tendencia de Merma</h3>
-    <div className="flex-1 min-h-0">
-     <LineChartWidget
-      data={data.charts.tendenciaMerma}
-      xAxisKey="name"
-      yAxisKey="value"
-      showLegend={false}
-     />
-    </div>
-   </div>
+   <ExpandableCard
+    title="Tendencia de Merma"
+    className="md:col-span-2 min-h-[300px] lg:min-h-0"
+   >
+    <LineChartWidget
+     data={data.charts.tendenciaMerma}
+     xAxisKey="name"
+     yAxisKey="value"
+     showLegend={false}
+    />
+   </ExpandableCard>
 
    {/* Bottom Left */}
-   <div className="md:col-span-2 bg-gray-900 border border-gray-700 rounded-xl p-4 flex flex-col min-h-[300px] lg:min-h-0 shadow-lg shadow-gray-950/50">
-    <h3 className="text-white font-medium mb-4 shrink-0">Merma por Tipo</h3>
-    <div className="flex-1 min-h-0">
-     <PieChartWidget data={data.charts.mermaPorTipo} showLegend />
-    </div>
-   </div>
+   <ExpandableCard
+    title="Merma por Tipo"
+    className="md:col-span-2 min-h-[300px] lg:min-h-0"
+   >
+    <PieChartWidget data={data.charts.mermaPorTipo} showLegend />
+   </ExpandableCard>
 
    {/* Bottom Right */}
-   <div className="md:col-span-2 bg-gray-900 border border-gray-700 rounded-xl p-4 flex flex-col min-h-[300px] lg:min-h-0 shadow-lg shadow-gray-950/50">
-    <h3 className="text-white font-medium mb-4 shrink-0">
-     Top Productos con Merma
-    </h3>
-    <div className="flex-1 min-h-0 overflow-hidden">
-     <TableWidget
-      data={data.tables.topProductosMerma}
-      columns={[
-       { key: "Producto", label: "Producto" },
-       { key: "Especie", label: "Especie" },
-       { key: "PesoMerma", label: "Merma", align: "right" },
-       { key: "PorcentajeMerma", label: "%", align: "right" },
-      ]}
-     />
-    </div>
-   </div>
+   <ExpandableCard
+    title="Top Productos con Merma"
+    className="md:col-span-2 min-h-[300px] lg:min-h-0"
+   >
+    <TableWidget
+     data={data.tables.topProductosMerma}
+     columns={[
+      { key: "Producto", label: "Producto" },
+      { key: "Especie", label: "Especie" },
+      { key: "PesoMerma", label: "Merma", align: "right" },
+      { key: "PorcentajeMerma", label: "%", align: "right" },
+     ]}
+    />
+   </ExpandableCard>
   </div>
  );
 }

@@ -7,6 +7,7 @@ import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import { HiCheckBadge, HiExclamationCircle } from "react-icons/hi2";
 import EmptyState from "@/components/ui/EmptyState";
 import { useAgentStore } from "@/store/agentStore";
+import ExpandableCard from "@/components/ui/ExpandableCard";
 
 interface DashboardData {
  kpis: {
@@ -106,64 +107,62 @@ function DashboardContent() {
 
    {/* Grid: 2x2 Charts */}
    {/* Top Left */}
-   <div className="md:col-span-2 bg-gray-900 border border-gray-700 rounded-xl p-4 flex flex-col min-h-[300px] lg:min-h-0 shadow-lg shadow-gray-950/50">
-    <h3 className="text-white font-medium mb-4 shrink-0">Calidad por Turno</h3>
-    <div className="flex-1 min-h-0">
-     <BarChartWidget
-      data={data.charts.calidadPorTurno}
-      xAxisKey="name"
-      yAxisKey="value"
-      showLegend={false}
-      colors={["#10b981"]}
-     />
-    </div>
-   </div>
+   <ExpandableCard
+    title="Calidad por Turno"
+    className="md:col-span-2 min-h-[300px] lg:min-h-0"
+   >
+    <BarChartWidget
+     data={data.charts.calidadPorTurno}
+     xAxisKey="name"
+     yAxisKey="value"
+     showLegend={false}
+     colors={["#10b981"]}
+    />
+   </ExpandableCard>
 
    {/* Top Right */}
-   <div className="md:col-span-2 bg-gray-900 border border-gray-700 rounded-xl p-4 flex flex-col min-h-[300px] lg:min-h-0 shadow-lg shadow-gray-950/50">
-    <h3 className="text-white font-medium mb-4 shrink-0">
-     Calidad por Producto
-    </h3>
-    <div className="flex-1 min-h-0">
-     <BarChartWidget
-      data={data.charts.calidadPorProducto}
-      xAxisKey="name"
-      yAxisKey="value"
-      showLegend={false}
-     />
-    </div>
-   </div>
+   <ExpandableCard
+    title="Calidad por Producto"
+    className="md:col-span-2 min-h-[300px] lg:min-h-0"
+   >
+    <BarChartWidget
+     data={data.charts.calidadPorProducto}
+     xAxisKey="name"
+     yAxisKey="value"
+     showLegend={false}
+    />
+   </ExpandableCard>
 
    {/* Bottom Left: OEE Empleados Table */}
-   <div className="md:col-span-2 bg-gray-900 border border-gray-700 rounded-xl p-4 flex flex-col min-h-[300px] lg:min-h-0 shadow-lg shadow-gray-950/50">
-    <h3 className="text-white font-medium mb-4 shrink-0">OEE de Empleados</h3>
-    <div className="flex-1 min-h-0 overflow-hidden">
-     <TableWidget
-      data={data.tables.oeeEmpleados}
-      columns={[
-       { key: "NombreCompleto", label: "Empleado" },
-       { key: "OEE", label: "OEE %", align: "right" },
-       { key: "ProductosCorrectos", label: "Prod.", align: "right" },
-      ]}
-     />
-    </div>
-   </div>
+   <ExpandableCard
+    title="OEE de Empleados"
+    className="md:col-span-2 min-h-[300px] lg:min-h-0"
+   >
+    <TableWidget
+     data={data.tables.oeeEmpleados}
+     columns={[
+      { key: "NombreCompleto", label: "Empleado" },
+      { key: "OEE", label: "OEE %", align: "right" },
+      { key: "ProductosCorrectos", label: "Prod.", align: "right" },
+     ]}
+    />
+   </ExpandableCard>
 
    {/* Bottom Right */}
-   <div className="md:col-span-2 bg-gray-900 border border-gray-700 rounded-xl p-4 flex flex-col min-h-[300px] lg:min-h-0 shadow-lg shadow-gray-950/50">
-    <h3 className="text-white font-medium mb-4 shrink-0">Top Empleados</h3>
-    <div className="flex-1 min-h-0 overflow-hidden">
-     <TableWidget
-      data={data.tables.topEmpleados}
-      columns={[
-       { key: "NombreCompleto", label: "Empleado" },
-       { key: "AntiguedadAnios", label: "Años", align: "center" },
-       { key: "ProductosCorrectos", label: "Productos", align: "right" },
-       { key: "PromedioProductos", label: "Prom", align: "right" },
-      ]}
-     />
-    </div>
-   </div>
+   <ExpandableCard
+    title="Top Empleados"
+    className="md:col-span-2 min-h-[300px] lg:min-h-0"
+   >
+    <TableWidget
+     data={data.tables.topEmpleados}
+     columns={[
+      { key: "NombreCompleto", label: "Empleado" },
+      { key: "AntiguedadAnios", label: "Años", align: "center" },
+      { key: "ProductosCorrectos", label: "Productos", align: "right" },
+      { key: "PromedioProductos", label: "Prom", align: "right" },
+     ]}
+    />
+   </ExpandableCard>
   </div>
  );
 }
