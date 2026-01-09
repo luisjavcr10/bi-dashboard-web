@@ -6,7 +6,7 @@ let bigqueryClient: BigQuery | null = null;
 
 export function getBigQueryClient(): BigQuery {
     if (!bigqueryClient) {
-        const projectId = process.env.BIGQUERY_PROJECT_ID || "ageless-runway-483614-u8";
+        const projectId = process.env.BIGQUERY_PROJECT_ID || "procesadora-dm";
 
         // Helper function to try parsing JSON credentials
         const getCredentials = () => {

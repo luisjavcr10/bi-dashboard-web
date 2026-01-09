@@ -1,0 +1,27 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getReporteMTBF } from "@/lib/queries/reportes";
+
+export const dynamic = 'force-dynamic';
+
+export async function GET(req: NextRequest) {
+    try {
+        const searchParams = req.nextUrl.searchParams;
+        const filters = {
+            anio: searchParams.get("anio")
+                ? parseInt(searchParams.get("anio")!)
+                : new Date().getFullYear(),
+            mes: searchParams.get("mes") || undefined,
+            dia: searchParams.get("dia") || undefined,
+            planta: searchParams.get("planta") || undefined,
+        };
+
+        const data = await getReporteMTBF(filters);
+        return NextResponse.json({ status: "ok", data });
+    } catch (error) {
+        console.error("Error fetching MTBF report:", error);
+        return NextResponse.json(
+            { status: "error", message: "Error fetching report" },
+            { status: 500 }
+        );
+    }
+}

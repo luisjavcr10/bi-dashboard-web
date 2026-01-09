@@ -15,6 +15,11 @@ import {
  HiArrowRightOnRectangle,
  HiUsers,
  HiShieldCheck,
+ HiWrench,
+ HiCog,
+ HiCheckCircle,
+ HiScale,
+ HiPresentationChartLine,
 } from "react-icons/hi2";
 import { clsx } from "clsx";
 
@@ -168,6 +173,74 @@ export default function Sidebar({ user }: SidebarProps) {
           {item.name}
          </span>
 
+         {isCollapsed && (
+          <div className="absolute left-full top-1/2 -translate-y-1/2 ml-4 px-2 py-1 bg-gray-900 border border-gray-700 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 shadow-xl">
+           {item.name}
+          </div>
+         )}
+        </Link>
+       );
+      })}
+
+      {/* Reportes Section */}
+      <div className="px-4 mt-6 mb-2">
+       {!isCollapsed ? (
+        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider animate-fadeIn">
+         Reportes
+        </span>
+       ) : (
+        <div className="h-px bg-gray-800 w-full my-2" />
+       )}
+      </div>
+
+      {[
+       { name: "MTTR", path: "/dashboard/reportes/mttr", icon: HiWrench },
+       { name: "MTBF", path: "/dashboard/reportes/mtbf", icon: HiCog },
+       {
+        name: "Disponibilidad",
+        path: "/dashboard/reportes/disponibilidad",
+        icon: HiCheckCircle,
+       },
+       {
+        name: "Prod. y Merma",
+        path: "/dashboard/reportes/produccion-merma",
+        icon: HiScale,
+       },
+       {
+        name: "OEE",
+        path: "/dashboard/reportes/oee",
+        icon: HiPresentationChartLine,
+       },
+      ].map((item) => {
+       const active = pathname === item.path;
+       return (
+        <Link
+         key={item.path}
+         href={item.path}
+         className={clsx(
+          "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group relative",
+          active
+           ? "bg-blue-600 text-white shadow-md shadow-blue-900/20"
+           : "text-gray-400 hover:bg-gray-900 hover:text-white",
+          isCollapsed ? "justify-center" : ""
+         )}
+         title={isCollapsed ? item.name : ""}
+        >
+         <item.icon
+          className={clsx(
+           "flex-shrink-0 transition-transform duration-200",
+           isCollapsed ? "w-6 h-6" : "w-5 h-5",
+           active && "scale-110"
+          )}
+         />
+         <span
+          className={clsx(
+           "font-medium whitespace-nowrap transition-all duration-300 origin-left",
+           isCollapsed ? "w-0 opacity-0 hidden" : "w-auto opacity-100 block"
+          )}
+         >
+          {item.name}
+         </span>
          {isCollapsed && (
           <div className="absolute left-full top-1/2 -translate-y-1/2 ml-4 px-2 py-1 bg-gray-900 border border-gray-700 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 shadow-xl">
            {item.name}
