@@ -1,5 +1,6 @@
 import { BigQuery } from "@google-cloud/bigquery";
 import path from "path";
+import fs from "fs";
 
 let bigqueryClient: BigQuery | null = null;
 
@@ -39,16 +40,30 @@ export function getBigQueryClient(): BigQuery {
                 credentials,
             });
         } else {
-            // Fallback: Use file-based credentials (local development or path provided)
-            const credentialsPath = path.join(
-                process.cwd(),
-                process.env.GOOGLE_APPLICATION_CREDENTIALS || "./credentials/bigquery-service-account.json"
-            );
-
-            bigqueryClient = new BigQuery({
-                projectId,
-                keyFilename: credentialsPath,
-            });
+            // Check if GOOGLE_APPLICATION_CREDENTIALS points to a valid file
+            const envCredsPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+            if (envCredsPath && fs.existsSync(envCredsPath)) {
+                bigqueryClient = new BigQuery({
+                    projectId,
+                    keyFilename: envCredsPath,
+                });
+            } else {
+                // Check if default local credentials file exists
+                const localCredsPath = path.join(process.cwd(), "credentials/bigquery-service-account.json");
+                if (fs.existsSync(localCredsPath)) {
+                    bigqueryClient = new BigQuery({
+                        projectId,
+                        keyFilename: localCredsPath,
+                    });
+                } else {
+                    // Fallback to ADC (Application Default Credentials) - Required for Cloud Run
+                    // This creates the client with just the projectId, allowing the environment to provide auth
+                    console.log("No explicit credentials found, using Application Default Credentials (ADC)");
+                    bigqueryClient = new BigQuery({
+                        projectId,
+                    });
+                }
+            }
         }
     }
 
