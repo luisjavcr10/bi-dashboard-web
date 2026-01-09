@@ -49,6 +49,7 @@ interface Filters {
   mes?: string;
   dia?: string;
   planta?: string;
+  turno?: string;
 }
 
 function buildWhereClause(filters?: Filters) {
@@ -70,6 +71,10 @@ function buildWhereClause(filters?: Filters) {
   if (filters?.planta) {
     whereClause += " AND LOWER(o.Planta) = LOWER(@planta)";
     params.planta = filters.planta;
+  }
+  if (filters?.turno) {
+    whereClause += " AND LOWER(tu.Turno) = LOWER(@turno)";
+    params.turno = filters.turno;
   }
 
   return { whereClause, params };
@@ -103,6 +108,7 @@ export async function getParadasResumen(filters?: Filters): Promise<ParadasResum
     FROM ${table("HechoParadas")} h
     JOIN ${table("DimTiempo")} t ON h.TiempoKey = t.TiempoKey
     JOIN ${table("DimOrganizacion")} o ON h.OrganizacionKey = o.OrganizacionKey
+    JOIN ${table("DimTurno")} tu ON h.TurnoKey = tu.TurnoKey
     ${whereClause}
   `;
 
@@ -124,6 +130,7 @@ export async function getParadasPorCausa(filters?: Filters): Promise<ParadasPorC
     WITH totales AS (
       SELECT SUM(TotalDuracionParada) as total_duracion
       FROM ${table("HechoParadas")} h
+      JOIN ${table("DimTurno")} tu ON h.TurnoKey = tu.TurnoKey
       JOIN ${table("DimTiempo")} t ON h.TiempoKey = t.TiempoKey
       JOIN ${table("DimOrganizacion")} o ON h.OrganizacionKey = o.OrganizacionKey
       ${whereClause}
@@ -135,6 +142,7 @@ export async function getParadasPorCausa(filters?: Filters): Promise<ParadasPorC
       ROUND(SUM(h.TotalDuracionParada) / NULLIF((SELECT total_duracion FROM totales), 0) * 100, 2) as PorcentajeDelTotal
     FROM ${table("HechoParadas")} h
     JOIN ${table("DimCausaParada")} c ON h.CausaKey = c.CausaKey
+    JOIN ${table("DimTurno")} tu ON h.TurnoKey = tu.TurnoKey
     JOIN ${table("DimTiempo")} t ON h.TiempoKey = t.TiempoKey
     JOIN ${table("DimOrganizacion")} o ON h.OrganizacionKey = o.OrganizacionKey
     ${whereClause}
@@ -155,6 +163,7 @@ export async function getTendenciaParadas(filters?: Filters): Promise<TendenciaP
       SUM(h.NumeroParadas) as NumeroParadas,
       SUM(h.TotalDuracionParada) as DuracionTotal
     FROM ${table("HechoParadas")} h
+    JOIN ${table("DimTurno")} tu ON h.TurnoKey = tu.TurnoKey
     JOIN ${table("DimTiempo")} t ON h.TiempoKey = t.TiempoKey
     JOIN ${table("DimOrganizacion")} o ON h.OrganizacionKey = o.OrganizacionKey
     ${whereClause}
@@ -176,6 +185,7 @@ export async function getParadasPorEtapa(filters?: Filters): Promise<ParadasPorE
       SUM(h.TotalDuracionParada) as DuracionTotal
     FROM ${table("HechoParadas")} h
     JOIN ${table("DimProduccion")} p ON h.ProduccionKey = p.ProduccionKey
+    JOIN ${table("DimTurno")} tu ON h.TurnoKey = tu.TurnoKey
     JOIN ${table("DimTiempo")} t ON h.TiempoKey = t.TiempoKey
     JOIN ${table("DimOrganizacion")} o ON h.OrganizacionKey = o.OrganizacionKey
     ${whereClause}
