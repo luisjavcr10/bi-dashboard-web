@@ -34,31 +34,35 @@ export async function GET(request: NextRequest) {
             status: "ok",
             data: {
                 kpis: {
-                    produccionTotal: resumen.totalPesoSalida,
-                    mermaTotal: resumen.totalPesoMerma,
-                    porcentajeMerma: resumen.porcentajeMerma,
-                    totalMallas: resumen.totalMallas,
-                    rendimientoPromedio: resumen.rendimientoPromedio,
+                    produccionTotal: Number(resumen.totalPesoSalida),
+                    mermaTotal: Number(resumen.totalPesoMerma),
+                    porcentajeMerma: Number(resumen.porcentajeMerma),
+                    totalMallas: Number(resumen.totalMallas),
+                    rendimientoPromedio: Number(resumen.rendimientoPromedio),
                 },
                 charts: {
                     produccionPorEspecie: porEspecie.map((p) => ({
                         name: p.Especie,
-                        value: p.PesoSalida,
-                        merma: p.PesoMerma,
-                        rendimiento: p.Rendimiento,
+                        value: Number(p.PesoSalida),
+                        merma: Number(p.PesoMerma),
+                        rendimiento: Number(p.Rendimiento),
                     })),
                     mermaPorTipo: mermaPorTipo.map((m) => ({
                         name: m.NombreMermaLean,
-                        value: m.PesoMerma,
+                        value: Number(m.PesoMerma),
                     })),
                     tendenciaMerma: tendencia.map((t) => ({
                         name: t.Mes,
-                        value: t.PesoMerma,
-                        porcentaje: t.PorcentajeMerma,
+                        value: Number(t.PesoMerma),
+                        porcentaje: Number(t.PorcentajeMerma),
                     })),
                 },
                 tables: {
-                    topProductosMerma: topProductos,
+                    topProductosMerma: topProductos.map((t) => ({
+                        ...t,
+                        PesoMerma: Number(t.PesoMerma),
+                        PorcentajeMerma: Number(t.PorcentajeMerma),
+                    })),
                 },
             },
             timestamp: new Date().toISOString(),
