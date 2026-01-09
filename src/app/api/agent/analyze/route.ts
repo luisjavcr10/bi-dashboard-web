@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { model } from "@/lib/gemini";
+import { getModel } from "@/lib/gemini";
 
 export const dynamic = 'force-dynamic';
 
-// Specialized system prompts based on dashboard context
+// specialized system prompts...
 const DASHBOARD_PROMPTS: Record<string, string> = {
     "Paradas": `Actúa como un Ingeniero de Confiabilidad y Mantenimiento Senior.
     Tu objetivo es maximizar la disponibilidad de la planta y reducir los tiempos muertos.
@@ -90,6 +90,7 @@ export async function POST(req: NextRequest) {
       3. Estrictamente basada en los datos proporcionados.
     `;
 
+        const model = getModel();
         const result = await model.generateContent(prompt);
         const response = await result.response;
         const text = response.text();
