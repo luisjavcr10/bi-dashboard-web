@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getModel } from "@/lib/gemini";
 
 export const dynamic = 'force-dynamic';
-
+//reuceda esto
 // specialized system prompts...
 const DASHBOARD_PROMPTS: Record<string, string> = {
     "Paradas": `Actúa como un Ingeniero de Confiabilidad y Mantenimiento Senior.
