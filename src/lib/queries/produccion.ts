@@ -83,6 +83,9 @@ export async function getProduccionResumen(filters?: Filters): Promise<Produccio
       COALESCE(SUM(h.PesoSalida), 0) as totalPesoSalida,
       COALESCE(SUM(h.PesoMerma), 0) as totalPesoMerma,
       CASE 
+        WHEN SUM(h.PesoIngresado) > 0 
+        THEN ROUND(SUM(h.PesoMerma) / SUM(h.PesoIngresado) * 100, 2)
+        ELSE 0 
       END as porcentajeMerma,
       COALESCE(SUM(h.CantidadMallas), 0) as totalMallas,
       CASE 

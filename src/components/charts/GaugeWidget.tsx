@@ -33,7 +33,7 @@ export default function GaugeWidget({
     {title}
    </span>
 
-   <div className="relative w-32 h-20">
+   <div className="relative w-20 h-12">
     <svg viewBox="0 0 100 60" className="w-full h-full">
      <path
       d="M 10 50 A 40 40 0 0 1 90 50"
