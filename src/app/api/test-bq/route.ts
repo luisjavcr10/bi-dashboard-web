@@ -26,12 +26,16 @@ export async function GET() {
             data: datasets,
             debug: debugInfo
         });
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("BigQuery Test Error:", error);
+
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        const errorStack = error instanceof Error ? error.stack : undefined;
+
         return NextResponse.json({
             status: "error",
-            message: error.message,
-            stack: error.stack,
+            message: errorMessage,
+            stack: errorStack,
             debug: {
                 projectId: process.env.BIGQUERY_PROJECT_ID,
                 hasCredentialsJson: !!process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON,
